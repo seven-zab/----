@@ -1,0 +1,163 @@
+{
+  "collections": [
+    {
+      "name": "users",
+      "acl": "read_write_env_user",
+      "indexes": [
+        {
+          "name": "openid_index",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_openid",
+              "direction": "asc"
+            }
+          ]
+        },
+        {
+          "name": "role_status_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "role",
+              "direction": "asc"
+            },
+            {
+              "name": "status",
+              "direction": "asc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "demands",
+      "acl": "read_write_env_user",
+      "indexes": [
+        {
+          "name": "status_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "status",
+              "direction": "asc"
+            }
+          ]
+        },
+        {
+          "name": "creator_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "_openid",
+              "direction": "asc"
+            }
+          ]
+        },
+        {
+          "name": "created_at_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "created_at",
+              "direction": "desc"
+            }
+          ]
+        },
+        {
+          "name": "category_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "type",
+              "direction": "asc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "conversations",
+      "acl": "read_write_env_user",
+      "indexes": [
+        {
+          "name": "members_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "members",
+              "direction": "asc"
+            }
+          ]
+        },
+        {
+          "name": "update_time_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "updateTime",
+              "direction": "desc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "messages",
+      "acl": "read_write_env_user",
+      "indexes": [
+        {
+          "name": "conversation_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "conversationId",
+              "direction": "asc"
+            }
+          ]
+        },
+        {
+          "name": "create_time_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createTime",
+              "direction": "asc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tickets",
+      "acl": "read_write_env_user",
+      "indexes": [
+        {
+          "name": "status_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "status",
+              "direction": "asc"
+            }
+          ]
+        },
+        {
+          "name": "create_time_index",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createTime",
+              "direction": "desc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "news",
+      "acl": "read_only",
+      "indexes": []
+    }
+  ]
+}

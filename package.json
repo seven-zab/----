@@ -1,0 +1,53 @@
+{
+  "name": "yun-zhi-xiang-zhi",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin && node copy-cloud-functions.js",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "format": "prettier --write .",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-3080220230511001",
+    "@dcloudio/uni-app-plus": "3.0.0-alpha-3080220230511001",
+    "@dcloudio/uni-components": "3.0.0-alpha-3080220230511001",
+    "@dcloudio/uni-h5": "3.0.0-alpha-3080220230511001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-3080220230511001",
+    "pinia": "^2.0.36",
+    "vue": "^3.2.47",
+    "vue-i18n": "^9.2.2",
+    "wot-design-uni": "^1.2.24"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
+    "@dcloudio/types": "^3.3.3",
+    "@dcloudio/uni-automator": "3.0.0-alpha-3080220230511001",
+    "@dcloudio/uni-cli-shared": "3.0.0-alpha-3080220230511001",
+    "@dcloudio/uni-stacktracey": "3.0.0-alpha-3080220230511001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-3080220230511001",
+    "@rushstack/eslint-patch": "^1.2.0",
+    "@types/node": "^18.16.16",
+    "@types/wechat-miniprogram": "^3.4.1",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "@vue/eslint-config-prettier": "^7.1.0",
+    "@vue/eslint-config-typescript": "^11.0.3",
+    "@vue/tsconfig": "^0.4.0",
+    "eslint": "^8.41.0",
+    "eslint-plugin-vue": "^9.14.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.8",
+    "sass": "^1.62.1",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.9"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}

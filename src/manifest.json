@@ -1,0 +1,21 @@
+{
+  "name": "云治乡智",
+  "appid": "wxbb2c6c85fd8c180d",
+  "description": "技连帮·农创智连小程序",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "wxbb2c6c85fd8c180d",
+    "setting": {
+      "urlCheck": false,
+      "minified": true,
+      "cloudfunctionRoot": "cloudfunctions/"
+    },
+    "usingComponents": true,
+    "cloudfunctionRoot": "cloudfunctions/",
+    "__usePrivacyCheck__": true,
+    "lazyCodeLoading": "requiredComponents"
+  },
+  "vueVersion": "3"
+}

@@ -1,0 +1,7 @@
+dist/
+node_modules/
+.DS_Store
+*.local
+scripts/
+copy-cloud-functions.js
+cloudfunctions/

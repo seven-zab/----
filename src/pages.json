@@ -1,0 +1,143 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "云治乡智"
+      }
+    },
+    {
+      "path": "pages/chat/chat",
+      "style": {
+        "navigationBarTitleText": "消息中心"
+      }
+    },
+    {
+      "path": "pages/user/user",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "登录注册"
+      }
+    },
+    {
+      "path": "pages/demand-create/demand-create",
+      "style": {
+        "navigationBarTitleText": "发布需求"
+      }
+    },
+    {
+      "path": "pages/demand-detail/demand-detail",
+      "style": {
+        "navigationBarTitleText": "需求详情"
+      }
+    },
+    {
+      "path": "pages/role-apply/role-apply",
+      "style": {
+        "navigationBarTitleText": "身份认证"
+      }
+    },
+    {
+      "path": "pages/chat/chat-detail",
+      "style": {
+        "navigationBarTitleText": "聊天"
+      }
+    },
+    {
+      "path": "pages/my-demands/my-demands",
+      "style": {
+        "navigationBarTitleText": "我的需求"
+      }
+    },
+    {
+      "path": "pages/profile-edit/profile-edit",
+      "style": {
+        "navigationBarTitleText": "编辑资料"
+      }
+    },
+    {
+      "path": "pages/claimed-tasks/claimed-tasks",
+      "style": {
+        "navigationBarTitleText": "认领的任务"
+      }
+    },
+    {
+      "path": "pages/policy/index",
+      "style": {
+        "navigationBarTitleText": "政策介绍"
+      }
+    },
+    {
+      "path": "pages/audit-manage/audit-manage",
+      "style": {
+        "navigationBarTitleText": "身份审核"
+      }
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "pages/debug",
+      "pages": [
+        {
+          "path": "test-runner",
+          "style": {
+            "navigationBarTitleText": "测试控制台"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/customer-service",
+      "pages": [
+        {
+          "path": "customer-service",
+          "style": {
+            "navigationBarTitleText": "智能客服"
+          }
+        }
+      ]
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "云治乡智",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#007AFF",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/chat/chat",
+        "text": "消息",
+        "iconPath": "static/tabbar/chat.png",
+        "selectedIconPath": "static/tabbar/chat-active.png"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "我的",
+        "iconPath": "static/tabbar/user.png",
+        "selectedIconPath": "static/tabbar/user-active.png"
+      }
+    ]
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^wd-(.*)": "wot-design-uni/components/wd-$1/wd-$1.vue"
+    }
+  }
+}
