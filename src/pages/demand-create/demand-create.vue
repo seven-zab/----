@@ -350,7 +350,7 @@ const uploadImage = () => {
     },
     fail: (err) => {
       console.log('chooseImage cancelled or failed', err);
-    }
+    },
   });
   // #endif
   // #ifndef MP-WEIXIN

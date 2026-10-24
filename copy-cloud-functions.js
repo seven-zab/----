@@ -12,6 +12,15 @@ function copyDir(src, dest) {
   const entries = fs.readdirSync(src, { withFileTypes: true });
 
   for (let entry of entries) {
+    // Dependencies are installed by the cloud deployment environment.
+    // Do not package local caches, credentials, or generated reports.
+    if (
+      ['node_modules', '.git', 'coverage', '.baseline'].includes(entry.name) ||
+      entry.name.startsWith('.env') ||
+      entry.name.endsWith('.log')
+    ) {
+      continue;
+    }
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
 

@@ -10,7 +10,8 @@ export type ActionType =
   | 'claim_task'
   | 'audit_demand'
   | 'view_stats'
-  | 'create_as_admin';
+  | 'create_as_admin'
+  | 'chat';
 
 interface PermissionConfig {
   action: ActionType;
@@ -50,6 +51,12 @@ const PERMISSION_MAP: Record<string, PermissionConfig> = {
     requiredRoles: ['school_admin', 'local_admin'],
     loginRequired: true,
     failMessage: '权限不足，无法查看统计数据',
+  },
+  chat: {
+    action: 'chat',
+    requiredRoles: ['farmer', 'local_admin', 'school_admin'],
+    loginRequired: true,
+    failMessage: '只有认证用户才能使用聊天功能',
   },
 };
 

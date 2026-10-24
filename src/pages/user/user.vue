@@ -13,6 +13,9 @@
         <text class="phone">{{ displayPhone }}</text>
         <text class="edit-tip">点击编辑资料 ›</text>
       </view>
+      <view class="refresh-btn" @click="handleRefreshRole" v-if="userStore.isLoggedIn">
+        <text class="refresh-icon">🔄</text>
+      </view>
     </view>
 
     <!-- 状态提示 -->
@@ -246,7 +249,7 @@ const canAudit = computed(() => {
   const isLocalAdmin = userStore.role === 'local_admin';
   // 逻辑二：手机号是张奥博的 (13823162597)
   const isSuperUser = userStore.userInfo?.phone === '13823162597';
-  
+
   return isLocalAdmin || isSuperUser;
 });
 
@@ -475,6 +478,43 @@ const goToLogin = (): void => {
 };
 
 /**
+ * Handle manual role refresh
+ */
+const handleRefreshRole = async (): Promise<void> => {
+  uni.showLoading({ title: '刷新中...' });
+
+  const oldRole = userStore.role;
+  const success = await userStore.refreshUserInfo();
+
+  uni.hideLoading();
+
+  if (success) {
+    const newRole = userStore.role;
+    if (newRole !== oldRole) {
+      uni.showModal({
+        title: '身份已更新',
+        content: `您的身份已从"${roleText.value}"变更为新的身份，请重新选择操作`,
+        showCancel: false,
+        success: () => {
+          loadStats();
+        }
+      });
+    } else {
+      uni.showToast({
+        title: '已是最新信息',
+        icon: 'none',
+        duration: 2000
+      });
+    }
+  } else {
+    uni.showToast({
+      title: '刷新失败，请稍后重试',
+      icon: 'none'
+    });
+  }
+};
+
+/**
  * Load user demand statistics
  */
 const loadStats = async (): Promise<void> => {
@@ -508,6 +548,24 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   margin-bottom: 20rpx;
+  position: relative;
+
+  .refresh-btn {
+    position: absolute;
+    top: 20rpx;
+    right: 20rpx;
+    width: 60rpx;
+    height: 60rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+
+    .refresh-icon {
+      font-size: 32rpx;
+    }
+  }
 
   .avatar-area {
     position: relative;

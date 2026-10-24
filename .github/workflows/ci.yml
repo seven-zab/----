@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, 'codex/**']
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Repository Hygiene
+        run: npm run check:repo
+
+      # 1. 代码规范检查 (ESLint + Prettier)
+      - name: Lint Code
+        run: npm run lint:check
+
+      # Existing TypeScript errors are recorded as baseline debt, not hidden.
+      # This check currently covers .ts files; Vue SFC checks need vue-tsc later.
+      - name: Type Check (known baseline debt)
+        id: typecheck
+        continue-on-error: true
+        run: npm run typecheck
+
+      # 2. 单元测试 (Vitest)
+      - name: Run Unit Tests
+        run: npm run test:coverage
+
+      # Performance tests are already included in the Vitest run above.
+      # Generated reports are CI artifacts, not committed source files.
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          if-no-files-found: warn
+          retention-days: 7
+
+      # 5. 试构建 (Build Check)
+      # 确保代码能成功编译成小程序代码包
+      - name: Build Application
+        run: npm run build:mp-weixin
+
+  build-production-artifact:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for Production
+        run: npm run build:mp-weixin:prod
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mp-weixin-build
+          path: dist/build/mp-weixin
+          retention-days: 7

@@ -1,5 +1,15 @@
 # 云治乡智 1.0 (Cloud Rural Governance Intelligence)
 
+## 开发基线（2026-10-24）
+
+开发前先阅读 [基线检查报告](docs/baseline.md) 和 [目标技术架构](docs/architecture/README.md)。目标方案中的AI与业务闭环不代表当前代码已经实现。
+
+使用 `.nvmrc` 指定的 Node.js 22.19.0 和 npm 10.9.3。首次安装执行 `npm ci`，再从 `.env.test.example`、`.env.production.example` 复制本地配置并填写自己的云环境。不要提交真实环境配置、凭据或微信开发者工具个人配置。
+
+常用检查：`npm run check:repo`、`npm run lint:check`、`npm run test:coverage`、`npm run build:mp-weixin`。`npm run typecheck` 当前仍有已记录的历史错误，且尚未覆盖 Vue SFC 模板，详情见基线报告。`npm run lint` 会修改源码；只检查时使用 `lint:check`。
+
+源码、测试、必要静态资源、锁文件和文档入库；dist、coverage、node_modules、旧源码压缩包和本地恢复快照仅保留本地。CI产物通过Artifacts保存，不写入Git。推送代码不等于部署微信小程序或云函数。
+
 ## 项目简介 (Project Introduction)
 “云治乡智”是一个基于微信小程序平台的乡村治理与服务智能化解决方案。本项目旨在通过数字化手段连接村民、村委、高校与农商户，提供需求发布、任务认领、身份认证、即时通讯等功能，助力乡村振兴与基层治理现代化。
 
@@ -32,8 +42,8 @@
 
 ## 运行环境要求 (Requirements)
 *   **开发工具**: 微信开发者工具 (Stable 1.06.2307260 或更高版本)
-*   **Node.js**: v16.0.0+ (建议 v18 LTS)
-*   **包管理器**: npm (v8+) 或 yarn (v1.22+)
+*   **Node.js**: 22.19.0（当前测试基线，见 `.nvmrc`）
+*   **包管理器**: npm 10.9.3，使用已提交的 package-lock.json
 *   **基础库版本**: 微信小程序基础库 2.30.0+
 
 ## 安装与部署步骤 (Installation & Deployment)
@@ -44,7 +54,7 @@
 
 2.  **安装依赖**:
     ```bash
-    npm install
+    npm ci
     ```
 
 3.  **构建**:

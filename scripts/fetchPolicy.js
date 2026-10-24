@@ -1,5 +1,3 @@
-const axios = require('axios'); // Ensure axios is installed or use native fetch in Node 18+
-
 /**
  * Fetch policies from mocked source or external API
  * This script can be run locally or required by cloud function
@@ -7,7 +5,7 @@ const axios = require('axios'); // Ensure axios is installed or use native fetch
 async function fetchPolicies() {
   console.log('Starting policy fetch...');
   const policies = [];
-  
+
   // Mock data representing what would be scraped
   const mockData = [
     {

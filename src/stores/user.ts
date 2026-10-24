@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export interface UserRoleContext {
   role_code: 'farmer' | 'local_admin' | 'school_admin' | 'general_user';
@@ -9,6 +9,7 @@ export interface UserRoleContext {
 
 export interface UserInfo {
   _id: string;
+  openid?: string;
   name: string;
   phone: string;
   role: 'farmer' | 'local_admin' | 'school_admin' | 'general_user';
@@ -38,9 +39,13 @@ export interface ApiResponse<T> {
 const CLOUD_ENV = 'test-yzxz-0g1jgylp46818d68';
 const TOKEN_KEY = 'user_token';
 const USER_INFO_KEY = 'user_info';
-// Token expiry: 7 days in milliseconds
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
+
+interface TokenData {
+  token: string;
+  expiresAt: number;
+  lastActiveTime: number;
+}
 
 export const useUserStore = defineStore('user', () => {
   const userInfo = ref<UserInfo | null>(null);
@@ -51,11 +56,91 @@ export const useUserStore = defineStore('user', () => {
   const availableRoles = ref<UserRoleContext[]>([]);
 
   /**
+   * Check if session is expired based on last active time
+   */
+  const isSessionExpired = (): boolean => {
+    try {
+      const tokenData = uni.getStorageSync(TOKEN_KEY);
+      if (!tokenData) return true;
+
+      const parsed: TokenData = typeof tokenData === 'string'
+        ? JSON.parse(tokenData)
+        : tokenData;
+
+      return Date.now() > parsed.expiresAt;
+    } catch {
+      return true;
+    }
+  };
+
+  /**
+   * Get time since last active (in days)
+   */
+  const getDaysSinceLastActive = (): number => {
+    try {
+      const tokenData = uni.getStorageSync(TOKEN_KEY);
+      if (!tokenData) return 999;
+
+      const parsed: TokenData = typeof tokenData === 'string'
+        ? JSON.parse(tokenData)
+        : tokenData;
+
+      return Math.floor((Date.now() - parsed.lastActiveTime) / (1000 * 60 * 60 * 24));
+    } catch {
+      return 999;
+    }
+  };
+
+  /**
+   * Generate a simple token
+   */
+  const generateToken = (): string => {
+    return `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+  };
+
+  /**
+   * Save session with expiry based on last active time
+   */
+  const saveSession = (): void => {
+    const tokenData: TokenData = {
+      token: generateToken(),
+      expiresAt: Date.now() + TOKEN_EXPIRY,
+      lastActiveTime: Date.now(),
+    };
+    uni.setStorageSync(TOKEN_KEY, JSON.stringify(tokenData));
+  };
+
+  /**
+   * Update last active time (called on user actions)
+   */
+  const updateLastActiveTime = (): void => {
+    try {
+      const tokenData = uni.getStorageSync(TOKEN_KEY);
+      if (tokenData) {
+        const parsed: TokenData = typeof tokenData === 'string'
+          ? JSON.parse(tokenData)
+          : tokenData;
+        parsed.lastActiveTime = Date.now();
+        uni.setStorageSync(TOKEN_KEY, JSON.stringify(parsed));
+      }
+    } catch (e) {
+      console.error('[UserStore] Failed to update last active time:', e);
+    }
+  };
+
+  /**
    * Initialize user store from local storage
    * @description Check local storage for existing session and restore state
    */
   const initFromStorage = (): boolean => {
     try {
+      if (isSessionExpired()) {
+        const days = getDaysSinceLastActive();
+        console.log(`[UserStore] Session expired (${days} days since last active)`);
+        logout();
+        return false;
+      }
+
       const storedInfo = uni.getStorageSync(USER_INFO_KEY);
       if (storedInfo) {
         const parsed = typeof storedInfo === 'string' ? JSON.parse(storedInfo) : storedInfo;
@@ -119,6 +204,7 @@ export const useUserStore = defineStore('user', () => {
         availableRoles.value = userData.available_roles || [];
         isLoggedIn.value = true;
         saveToStorage(userData);
+        saveSession();
         console.info('[UserStore] Login successful for user:', userData._id);
         return { success: true };
       } else if (result.code === 404) {
@@ -391,6 +477,58 @@ export const useUserStore = defineStore('user', () => {
   };
 
   /**
+   * Refresh user info silently
+   * @description Fetch latest user info from cloud and update store
+   * @returns Promise<boolean>
+   */
+  const refreshUserInfo = async (): Promise<boolean> => {
+    try {
+      if (!isLoggedIn.value) return false;
+
+      const oldRole = role.value;
+      const oldStatus = status.value;
+
+      const { result } = await wx.cloud.callFunction({
+        name: 'login',
+        config: { env: CLOUD_ENV },
+      });
+
+      if (result.code === 0) {
+        const userData = result.data as UserInfo;
+        const hasChanged =
+          userData.role !== oldRole ||
+          userData.status !== oldStatus ||
+          JSON.stringify(userData.current_context) !== JSON.stringify(currentContext.value);
+
+        userInfo.value = userData;
+        role.value = userData.role;
+        status.value = userData.status;
+        currentContext.value = userData.current_context || {};
+        availableRoles.value = userData.available_roles || [];
+
+        saveToStorage(userData);
+        saveSession();
+
+        if (hasChanged) {
+          console.info('[UserStore] User info refreshed with changes:', {
+            oldRole,
+            newRole: userData.role,
+            oldStatus,
+            newStatus: userData.status
+          });
+        } else {
+          console.info('[UserStore] User info refreshed (no changes):', userData._id);
+        }
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('[UserStore] Refresh info error:', error);
+      return false;
+    }
+  };
+
+  /**
    * Initialize admin roles (Development Helper)
    * @returns Promise<boolean>
    */
@@ -421,7 +559,12 @@ export const useUserStore = defineStore('user', () => {
     }
   };
 
+  const canChat = computed(() => {
+    return role.value !== 'general_user';
+  });
+
   return {
+    canChat,
     userInfo,
     isLoggedIn,
     role,
@@ -429,6 +572,7 @@ export const useUserStore = defineStore('user', () => {
     currentContext,
     availableRoles,
     initFromStorage,
+    saveToStorage,
     login,
     register,
     updateAvatar,
@@ -438,6 +582,10 @@ export const useUserStore = defineStore('user', () => {
     hasRole,
     canPerformAction,
     switchRole,
+    refreshUserInfo,
     initAdminRoles,
+    isSessionExpired,
+    getDaysSinceLastActive,
+    updateLastActiveTime,
   };
 });

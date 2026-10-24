@@ -1,17 +1,17 @@
 <template>
   <view class="container">
     <wd-navbar title="身份审核" left-text="返回" left-arrow @click-left="goBack" />
-    
+
     <view class="audit-list">
       <view v-if="loading" class="loading">加载中...</view>
       <view v-else-if="userList.length === 0" class="empty">暂无待审核用户</view>
-      
+
       <view v-else class="user-card" v-for="user in userList" :key="user._id">
         <view class="card-header">
           <text class="name">{{ user.name }}</text>
           <text class="role-tag">{{ getRoleName(user.role) }}</text>
         </view>
-        
+
         <view class="card-body">
           <view class="info-row">
             <text class="label">手机号：</text>
@@ -23,18 +23,22 @@
           </view>
           <view class="info-row" v-if="user.verify_material">
             <text class="label">证明材料：</text>
-            <image 
-              :src="user.verify_material" 
-              mode="aspectFit" 
+            <image
+              :src="user.verify_material"
+              mode="aspectFit"
               class="material-img"
               @click="previewImage(user.verify_material)"
             />
           </view>
         </view>
-        
+
         <view class="card-footer">
-          <wd-button type="error" size="small" plain @click="handleAudit(user, 'reject')">拒绝</wd-button>
-          <wd-button type="primary" size="small" @click="handleAudit(user, 'approve')">通过</wd-button>
+          <wd-button type="error" size="small" plain @click="handleAudit(user, 'reject')"
+            >拒绝</wd-button
+          >
+          <wd-button type="primary" size="small" @click="handleAudit(user, 'approve')"
+            >通过</wd-button
+          >
         </view>
       </view>
     </view>
@@ -53,7 +57,7 @@ const getRoleName = (role: string) => {
     farmer: '农商户',
     school_admin: '高校师生',
     local_admin: '村委/团委',
-    general_user: '普通用户'
+    general_user: '普通用户',
   };
   return map[role] || role;
 };
@@ -61,7 +65,9 @@ const getRoleName = (role: string) => {
 const formatDate = (ts: number | string) => {
   if (!ts) return '-';
   const date = new Date(ts);
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+  return `${date.getFullYear()}-${
+    date.getMonth() + 1
+  }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 };
 
 const goBack = () => {
@@ -74,9 +80,9 @@ const fetchList = async () => {
     const { result } = await wx.cloud.callFunction({
       name: 'userService',
       data: { action: 'listPendingUsers' },
-      config: { env: CLOUD_ENV }
+      config: { env: CLOUD_ENV },
     });
-    
+
     if ((result as any).code === 0) {
       userList.value = (result as any).data.list;
     } else {
@@ -99,17 +105,17 @@ const handleAudit = async (user: any, action: 'approve' | 'reject') => {
         action: 'auditUser',
         data: {
           targetUserId: user._id,
-          action: action
-        }
+          action: action,
+        },
       },
-      config: { env: CLOUD_ENV }
+      config: { env: CLOUD_ENV },
     });
-    
+
     uni.hideLoading();
     if ((result as any).code === 0) {
       uni.showToast({ title: '操作成功', icon: 'success' });
       // Remove from list locally
-      userList.value = userList.value.filter(u => u._id !== user._id);
+      userList.value = userList.value.filter((u) => u._id !== user._id);
     } else {
       uni.showToast({ title: (result as any).msg, icon: 'none' });
     }
@@ -139,7 +145,8 @@ onMounted(() => {
   padding: 20rpx;
 }
 
-.loading, .empty {
+.loading,
+.empty {
   text-align: center;
   padding: 40rpx;
   color: #999;
@@ -151,20 +158,20 @@ onMounted(() => {
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 20rpx;
-  
+
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 20rpx;
     border-bottom: 1rpx solid #eee;
-    
+
     .name {
       font-size: 32rpx;
       font-weight: bold;
       color: #333;
     }
-    
+
     .role-tag {
       font-size: 24rpx;
       color: #007aff;
@@ -173,25 +180,25 @@ onMounted(() => {
       border-radius: 4rpx;
     }
   }
-  
+
   .card-body {
     padding: 20rpx 0;
-    
+
     .info-row {
       display: flex;
       margin-bottom: 12rpx;
       font-size: 28rpx;
-      
+
       .label {
         color: #666;
         width: 160rpx;
       }
-      
+
       .value {
         color: #333;
         flex: 1;
       }
-      
+
       .material-img {
         width: 160rpx;
         height: 160rpx;
@@ -200,7 +207,7 @@ onMounted(() => {
       }
     }
   }
-  
+
   .card-footer {
     display: flex;
     justify-content: flex-end;

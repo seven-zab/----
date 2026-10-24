@@ -28,5 +28,28 @@ module.exports = {
         'no-unused-vars': 'off',
       },
     },
+    {
+      files: ['tests/e2e/**/*.test.js'],
+      env: {
+        jest: true,
+        node: true,
+      },
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+      rules: {
+        'no-undef': 'off',
+      },
+    },
+    {
+      files: ['jest.config.js', 'vitest.config.ts'],
+      env: {
+        node: true,
+      },
+      rules: {
+        'no-undef': 'off',
+      },
+    },
   ],
 };

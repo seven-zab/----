@@ -54,17 +54,39 @@ const scrollInto = ref('');
 
 let watcher: any = null;
 
-onMounted(() => {
+onMounted(async () => {
   const pages = getCurrentPages();
   const page = pages[pages.length - 1] as any;
   const options = page.options || {};
   conversationId.value = options.id || '';
   targetName.value = options.name || '';
+  const targetUserId = options.targetUserId || '';
 
   uni.setNavigationBarTitle({ title: targetName.value });
 
-  loadMessages();
-  watchMessages();
+  if (!conversationId.value && targetUserId) {
+    try {
+      const { result } = (await wx.cloud.callFunction({
+        name: 'chatService',
+        data: {
+          action: 'createConversation',
+          payload: { receiverId: targetUserId },
+        },
+      })) as any;
+      if (result.code === 0) {
+        conversationId.value = result.data._id;
+      }
+    } catch (e) {
+      console.error('Create conversation error', e);
+      uni.showToast({ title: '无法开启会话', icon: 'none' });
+      return;
+    }
+  }
+
+  if (conversationId.value) {
+    loadMessages();
+    watchMessages();
+  }
 });
 
 onUnmounted(() => {
@@ -75,15 +97,19 @@ onUnmounted(() => {
 
 const loadMessages = async () => {
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
+    const { result } = (await wx.cloud.callFunction({
+      name: 'chatService',
       data: {
         action: 'getMessages',
-        data: { conversationId: conversationId.value },
+        payload: { conversationId: conversationId.value },
       },
-    });
+    })) as any;
     if (result.code === 0) {
-      messageList.value = result.data.list || [];
+      messageList.value = result.data.map((msg: any) => ({
+        ...msg,
+        isSelf:
+          msg.senderId === userStore.userInfo?.openid || msg.senderId === userStore.userInfo?._id, // Check both just in case
+      }));
       scrollToBottom();
     }
   } catch (e) {
@@ -105,7 +131,9 @@ const watchMessages = async () => {
         if (snapshot.docs) {
           messageList.value = snapshot.docs.map((doc: any) => ({
             ...doc,
-            isSelf: doc.senderId === userStore.userInfo?._id,
+            isSelf:
+              doc.senderId === userStore.userInfo?.openid ||
+              doc.senderId === userStore.userInfo?._id,
           }));
           scrollToBottom();
         }
@@ -130,10 +158,10 @@ const sendMessage = async () => {
 
   try {
     await wx.cloud.callFunction({
-      name: 'demandService',
+      name: 'chatService',
       data: {
         action: 'sendMessage',
-        data: {
+        payload: {
           conversationId: conversationId.value,
           type: 'text',
           content,

@@ -33,7 +33,20 @@ exports.main = async (event, context) => {
 }
 
 async function createDemand(openid, data) {
-  // 简单的必填校验
+  // 1. 权限校验：获取用户信息
+  const userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) {
+    return { code: 403, msg: 'User not found' }
+  }
+  const user = userRes.data[0]
+
+  // 2. 权限校验：检查角色
+  // 只有当前角色为 'farmer' (农户) 才能发布需求
+  if (user.role !== 'farmer') {
+    return { code: 403, msg: 'Permission denied: Only verified farmers can publish demands' }
+  }
+
+  // 3. 简单的必填校验
   if (!data.title || !data.content || !data.type) {
     return { code: 400, msg: 'Missing required fields' }
   }

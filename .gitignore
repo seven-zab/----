@@ -8,3 +8,21 @@ miniprogram_npm/
 project.private.config.json
 *.log
 .DS_Store
+
+# Local environment configuration (commit templates instead)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Generated reports, caches, and local baseline recovery snapshots
+coverage/
+.baseline/
+.cache/
+.eslintcache
+*.tsbuildinfo
+test-results/
+playwright-report/
+
+# Release/source archives are reproducible outputs, not source files
+/*.zip
