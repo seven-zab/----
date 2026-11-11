@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "properties": {
+    "cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "page_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "business_scene": {
+      "type": "string",
+      "enum": [
+        "village",
+        "campus"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "enterprise",
+        "agriculture",
+        "research",
+        "campus"
+      ]
+    },
+    "sub_type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "region_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "campus_organization_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "keyword": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

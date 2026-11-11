@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "mode": {
+      "const": "assistant"
+    }
+  },
+  "required": [
+    "mode"
+  ],
+  "additionalProperties": false
+}

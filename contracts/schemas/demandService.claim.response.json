@@ -1,0 +1,75 @@
+{
+  "type": "object",
+  "properties": {
+    "demand_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_audit",
+        "rejected",
+        "pending_claim",
+        "claiming",
+        "processing",
+        "pending_review",
+        "completed",
+        "cancelled",
+        "expired",
+        "terminated"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "event_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "maxItems": 99,
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "claim_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "claim_expires_at": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "assignee_type": {
+      "type": "string",
+      "enum": [
+        "user",
+        "team"
+      ]
+    },
+    "assignee_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "demand_id",
+    "status",
+    "version",
+    "event_ids",
+    "claim_id",
+    "claim_expires_at",
+    "assignee_type",
+    "assignee_id"
+  ],
+  "additionalProperties": false
+}

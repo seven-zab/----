@@ -1,0 +1,46 @@
+{
+  "type": "object",
+  "properties": {
+    "quota_kind": {
+      "const": "general_chat"
+    },
+    "quota_day": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 10
+    },
+    "limit": {
+      "const": 10
+    },
+    "used": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "reserved": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "remaining": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "reset_at": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "quota_kind",
+    "quota_day",
+    "limit",
+    "used",
+    "reserved",
+    "remaining",
+    "reset_at"
+  ],
+  "additionalProperties": false
+}

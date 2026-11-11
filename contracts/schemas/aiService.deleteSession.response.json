@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "deleted": {
+      "const": true
+    }
+  },
+  "required": [
+    "deleted"
+  ],
+  "additionalProperties": false
+}

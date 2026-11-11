@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "api_version": {
+      "const": "v1"
+    },
+    "service": {
+      "const": "aiService"
+    },
+    "source_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "required": [
+    "api_version",
+    "service",
+    "source_hash"
+  ],
+  "additionalProperties": false
+}

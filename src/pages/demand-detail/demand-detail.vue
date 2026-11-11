@@ -1,546 +1,635 @@
 <template>
-  <view class="container" v-if="demand">
-    <view class="header">
-      <text class="title">{{ demand.title }}</text>
-      <text class="status-tag" :class="demand.status">{{ statusMap[demand.status] }}</text>
-    </view>
-
-    <view class="info-section">
-      <view class="info-row">
-        <text class="label">发布人:</text>
-        <text class="value">{{ demand.creator_name }}</text>
+  <PageShell>
+    <text class="error" v-if="error">{{ error }}</text>
+    <template v-if="detail"
+      ><text class="status">{{ labels[detail.demand.status] }}</text
+      ><text class="heading">{{ detail.demand.title }}</text
+      ><text>{{ detail.demand.content }}</text
+      ><AttachmentList
+        :file-ids="(detail.attachments ?? []).map((a) => a.file_id)"
+        resource-type="demand"
+        :resource-id="id"
+        :grant-id="readOptions().grant_id"
+      />
+      <DemandTimeline :status="detail.demand.status" />
+      <view v-for="event in events" :key="event.event_id" class="event">
+        <text>{{ eventLabel(event.type) }} · {{ formatTime(event.occurred_at) }}</text>
+        <text v-if="event.text">{{ event.text }}</text>
+        <AttachmentList
+          :file-ids="event.attachment_ids ?? []"
+          resource-type="demand"
+          :resource-id="id"
+          :grant-id="readOptions().grant_id"
+        />
       </view>
-      <view class="info-row">
-        <text class="label">类型:</text>
-        <text class="value">{{ typeMap[demand.type] }}</text>
+      <button v-if="eventCursor" :disabled="busy" @click="loadMoreEvents">查看更多记录</button>
+      <button v-if="allowed('createDemandConversation')" :disabled="busy" @click="openChat">
+        需求咨询 / 对接私聊
+      </button>
+      <button v-if="allowed('getContact')" :disabled="busy" @click="readPrivate('getContact')">
+        查看对接人电话
+      </button>
+      <button
+        v-if="allowed('getServiceLocation')"
+        :disabled="busy"
+        @click="readPrivate('getServiceLocation')"
+      >
+        查看服务地址
+      </button>
+      <text v-if="privateText">{{ privateText }}</text>
+      <view v-if="detail.completion" class="card">
+        <text>成果总结：{{ detail.completion.summary }}</text>
+        <AttachmentList
+          :file-ids="detail.completion.attachment_ids"
+          resource-type="demand"
+          :resource-id="id"
+          :grant-id="readOptions().grant_id"
+        />
+        <text v-if="detail.completion.reason">验收意见：{{ detail.completion.reason }}</text>
       </view>
-      <view class="info-row">
-        <text class="label">发布时间:</text>
-        <text class="value">{{ formatDate(demand.created_at) }}</text>
-      </view>
-    </view>
-
-    <view class="content-section">
-      <view class="section-title">需求详情</view>
-      <view class="content-text">{{ demand.content }}</view>
-    </view>
-
-    <!-- Timeline Section -->
-    <view class="timeline-section" v-if="demand.timeline && demand.timeline.length > 0">
-      <view class="section-title">任务时间线</view>
-      <view class="timeline">
-        <view
-          v-for="(item, index) in demand.timeline"
-          :key="index"
-          class="timeline-item"
-          :class="{ active: index === 0 }"
+      <view v-if="detail.termination_request" class="card">
+        <text>终止协商：{{ terminationLabels[detail.termination_request.status] }}</text>
+        <text>申请原因：{{ detail.termination_request.reason }}</text>
+        <text v-if="detail.termination_request.response_reason"
+          >答复意见：{{ detail.termination_request.response_reason }}</text
         >
-          <view class="timeline-dot"></view>
-          <view class="timeline-content">
-            <view class="timeline-action">{{ timelineActionMap[item.action] || item.action }}</view>
-            <view class="timeline-user">{{ item.user_name }}</view>
-            <view class="timeline-time">{{ formatDate(item.timestamp) }}</view>
-            <view v-if="item.comment" class="timeline-comment">备注: {{ item.comment }}</view>
-          </view>
-        </view>
+        <text v-if="detail.termination_request.dispute_reason"
+          >争议说明：{{ detail.termination_request.dispute_reason }}</text
+        >
+        <text v-if="detail.termination_request.resolution_reason"
+          >处理依据：{{ detail.termination_request.resolution_reason }}</text
+        >
       </view>
-    </view>
-
-    <!-- Audit Action Area (Local Admin) -->
-    <view
-      v-if="userStore.role === 'local_admin' && demand.status === 'pending_audit'"
-      class="action-area"
-    >
-      <wd-button type="success" block @click="handleAudit('pass')">通过审核</wd-button>
-      <wd-button type="danger" block plain @click="handleAudit('reject')" class="mt-20"
-        >驳回申请</wd-button
-      >
-    </view>
-
-    <!-- Claim Action Area (School Admin) -->
-    <view
-      v-if="userStore.role === 'school_admin' && demand.status === 'pending_claim'"
-      class="action-area"
-    >
-      <wd-button type="primary" block @click="claim">认领需求</wd-button>
-    </view>
-
-    <!-- Handshake Confirmation (Farmer) -->
-    <view
-      v-if="
-        (userStore.role === 'farmer' || userStore.role === 'local_admin') &&
-        demand.status === 'claiming'
-      "
-      class="action-area"
-    >
-      <wd-button type="success" block @click="confirmHandshake('agree')">同意对接</wd-button>
-      <wd-button type="danger" block plain @click="confirmHandshake('reject')" class="mt-20"
-        >拒绝对接</wd-button
-      >
-    </view>
-
-    <!-- Task Execution (School Admin - Processing) -->
-    <view
-      v-if="userStore.role === 'school_admin' && demand.status === 'processing' && isClaimer"
-      class="action-area"
-    >
-      <wd-button type="primary" block @click="markArrived">我已抵达</wd-button>
-      <wd-button type="warning" block plain @click="startTaskExecute" class="mt-20"
-        >开始执行</wd-button
-      >
-    </view>
-
-    <!-- Submit Completion (School Admin) -->
-    <view
-      v-if="userStore.role === 'school_admin' && demand.status === 'processing' && isClaimer"
-      class="action-area"
-    >
-      <wd-button type="primary" block @click="submitCompletion">提交成果</wd-button>
-    </view>
-
-    <!-- Confirm Completion (Farmer) -->
-    <view
-      v-if="
-        (userStore.role === 'farmer' || userStore.role === 'local_admin') &&
-        demand.status === 'pending_review'
-      "
-      class="action-area"
-    >
-      <wd-button type="success" block @click="confirmCompletion('success')">确认完成</wd-button>
-      <wd-button type="danger" block plain @click="confirmCompletion('fail')" class="mt-20"
-        >验收失败</wd-button
-      >
-    </view>
-
-    <!-- Match Info -->
-    <view v-if="demand.status === 'claiming' || demand.status === 'processing'" class="match-info">
-      <view class="section-title">结对信息</view>
-      <text>接单人: {{ demand.claimer_name }}</text>
-      <text v-if="demand.claimer_school"> | 学校: {{ demand.claimer_school }}</text>
-    </view>
-  </view>
+      <view v-if="detail.roster_request" class="card">
+        <text>名单交接申请：{{ detail.roster_request.reason }}</text>
+        <text>新名单人数：{{ detail.roster_request.participant_user_ids.length }}</text>
+        <text v-for="member in detail.roster_request.participant_labels" :key="member.user_id">
+          {{ member.display_name
+          }}{{
+            member.user_id === detail.roster_request.responsible_user_id ? '（拟任本单负责人）' : ''
+          }}
+        </text>
+        <button
+          v-if="allowed('reviewRosterChange')"
+          :disabled="busy"
+          @click="act('reviewRosterChange', 'approve')"
+        >
+          同意名单及负责人交接
+        </button>
+        <button
+          v-if="allowed('reviewRosterChange')"
+          :disabled="busy"
+          @click="act('reviewRosterChange', 'reject')"
+        >
+          拒绝交接
+        </button>
+      </view>
+      <template v-if="allowed('claim') || allowed('requestRosterChange')">
+        <button :disabled="busy" @click="loadTeams">
+          {{ allowed('claim') ? '选择团队接取' : '申请本单名单或负责人交接' }}
+        </button>
+        <view v-if="teamChoices.length" class="card">
+          <button
+            v-for="team in teamChoices"
+            :key="team.team_id"
+            :disabled="busy"
+            @click="chooseTeam(team.team_id)"
+          >
+            {{ team.name }}
+          </button>
+          <button v-if="teamChoicesCursor" :disabled="busy" @click="moreTeamChoices">
+            更多团队
+          </button>
+          <template v-if="selectedTeamId">
+            <text>选择本单实际参与者（最多20人）；接取时必须包含团队负责人。</text>
+            <button
+              v-for="member in rosterMembers"
+              :key="member.user_id"
+              :disabled="busy"
+              @click="toggleParticipant(member.user_id)"
+            >
+              {{ selectedParticipants.includes(member.user_id) ? '☑' : '☐' }}
+              {{ member.display_name }}
+            </button>
+            <template v-if="allowed('requestRosterChange')">
+              <text>选择新的本单负责人：</text>
+              <button
+                v-for="member in rosterMembers.filter((m) =>
+                  selectedParticipants.includes(m.user_id),
+                )"
+                :key="member.user_id"
+                :disabled="busy"
+                @click="responsibleId = member.user_id"
+              >
+                {{ responsibleId === member.user_id ? '●' : '○' }} {{ member.display_name }}
+              </button>
+              <button :disabled="busy" @click="act('requestRosterChange')">
+                提交交接申请，等待发布者确认
+              </button>
+            </template>
+            <button v-else :disabled="busy" @click="act('claimTeam')">以所选团队和名单接取</button>
+          </template>
+        </view>
+      </template>
+      <textarea
+        v-if="needsText"
+        v-model="text"
+        placeholder="进度、成果总结或拒绝 / 退回原因"
+        maxlength="5000"
+      />
+      <view v-if="allowed('addProgress') || allowed('submitCompletion')" class="card">
+        <text>进度 / 成果图片（选填，最多5张）：{{ evidenceImages.length }} / 5</text>
+        <button :disabled="busy || evidenceImages.length >= 5" @click="addEvidence">
+          添加凭证图片
+        </button>
+        <button
+          v-for="(fileId, index) in evidenceImages"
+          :key="fileId"
+          :disabled="busy"
+          @click="evidenceImages = evidenceImages.filter((id) => id !== fileId)"
+        >
+          移除图片 {{ index + 1 }}
+        </button>
+      </view>
+      <view class="row">
+        <button v-if="allowed('claim')" class="primary" :disabled="busy" @click="act('claim')">
+          个人接取
+        </button>
+        <button v-if="allowed('cancel')" :disabled="busy" @click="act('cancel')">
+          取消尚未开始的需求
+        </button>
+        <button v-if="allowed('withdrawClaim')" :disabled="busy" @click="act('withdrawClaim')">
+          撤回接取
+        </button>
+        <button
+          v-if="allowed('confirmClaim')"
+          class="primary"
+          :disabled="busy"
+          @click="act('confirmClaim', 'accept')"
+        >
+          同意开始服务</button
+        ><button
+          v-if="allowed('confirmClaim')"
+          :disabled="busy"
+          @click="act('confirmClaim', 'reject')"
+        >
+          拒绝接取
+        </button>
+        <button
+          v-if="allowed('review')"
+          class="primary"
+          :disabled="busy"
+          @click="act('review', 'approve')"
+        >
+          审核通过</button
+        ><button v-if="allowed('review')" :disabled="busy" @click="act('review', 'reject')">
+          驳回审核
+        </button>
+        <button v-if="allowed('addProgress')" :disabled="busy" @click="act('addProgress')">
+          记录阶段进度</button
+        ><button
+          v-if="allowed('submitCompletion')"
+          class="primary"
+          :disabled="busy"
+          @click="act('submitCompletion')"
+        >
+          提交成果待验收
+        </button>
+        <button
+          v-if="allowed('reviewCompletion')"
+          class="primary"
+          :disabled="busy"
+          @click="act('reviewCompletion', 'accept')"
+        >
+          验收通过</button
+        ><button
+          v-if="allowed('reviewCompletion')"
+          :disabled="busy"
+          @click="act('reviewCompletion', 'return')"
+        >
+          退回补充
+        </button>
+        <button
+          v-if="allowed('requestTermination')"
+          :disabled="busy"
+          @click="act('requestTermination')"
+        >
+          申请协商终止
+        </button>
+        <button
+          v-if="allowed('respondTermination')"
+          :disabled="busy"
+          @click="act('respondTermination', 'agree')"
+        >
+          同意终止任务
+        </button>
+        <button
+          v-if="allowed('respondTermination')"
+          :disabled="busy"
+          @click="act('respondTermination', 'reject')"
+        >
+          拒绝终止，继续履约
+        </button>
+        <button
+          v-if="allowed('withdrawTermination')"
+          :disabled="busy"
+          @click="act('withdrawTermination')"
+        >
+          撤回终止申请
+        </button>
+        <button
+          v-if="allowed('disputeTermination')"
+          :disabled="busy"
+          @click="act('disputeTermination')"
+        >
+          提交终止争议
+        </button>
+        <button
+          v-if="allowed('resolveTermination')"
+          :disabled="busy"
+          @click="act('resolveTermination', 'terminate')"
+        >
+          管理处理：终止任务
+        </button>
+        <button
+          v-if="allowed('resolveTermination')"
+          :disabled="busy"
+          @click="act('resolveTermination', 'continue')"
+        >
+          管理处理：继续履约
+        </button>
+      </view> </template
+    ><button :disabled="busy" @click="load">刷新状态</button>
+  </PageShell>
 </template>
-
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { useUserStore } from '@/stores/user';
-
-const userStore = useUserStore();
-const demand = ref<any>(null);
-const demandId = ref('');
-
-const statusMap: Record<string, string> = {
-  pending_audit: '待审核',
-  pending_claim: '待认领',
-  claiming: '待确认',
-  processing: '执行中',
-  pending_review: '待验收',
-  rejected: '已驳回',
-  completed: '已完成',
-  failed: '已失败',
+import PageShell from '../../components/PageShell.vue';
+import DemandTimeline from '../../components/DemandTimeline.vue';
+import AttachmentList from '../../components/AttachmentList.vue';
+import { uploadImage } from '../../services/fileV1';
+import { demandCommand as sendDemandCommand, demandDetail } from '../../services/demandV1';
+import { cloudCall } from '../../services/cloudClient';
+import { useSessionStore } from '../../stores/session';
+import { createDemandConversation } from '../../services/chatV1';
+import type { ContractMap } from '../../../contracts/generated/dto';
+import { demandStatusLabels as labels, errorMessage } from '../../utils/display';
+const detail = ref<ContractMap['demandService.getDetail']['response'] | null>(null);
+const id = ref('');
+const text = ref('');
+const evidenceImages = ref<string[]>([]);
+const busy = ref(false);
+const error = ref('');
+const events = ref<ContractMap['demandService.listEvents']['response']['items']>([]);
+const eventCursor = ref<string | null>(null);
+const privateText = ref('');
+const teamChoices = ref<ContractMap['teamService.listMyTeams']['response']['items']>([]);
+const teamChoicesCursor = ref<string | null>(null);
+const rosterMembers = ref<ContractMap['teamService.listMembers']['response']['items']>([]);
+const selectedTeamId = ref('');
+const selectedParticipants = ref<string[]>([]);
+const responsibleId = ref('');
+const session = useSessionStore();
+const readOptions = () =>
+  detail.value?.task_grant_id ? { grant_id: detail.value.task_grant_id } : session.options();
+const eventLabels: Record<string, string> = {
+  submitted: '已提交审核',
+  review: '审核结果更新',
+  claim: '已接取，待发布者确认',
+  claim_confirmed: '发布者确认开始服务',
+  claim_released: '接取已释放',
+  addProgress: '阶段进度',
+  submitCompletion: '已交成果，待验收',
+  reviewCompletion: '验收结果更新',
+  cancel: '需求已取消',
+  requestTermination: '已申请协商终止',
+  respondTermination: '终止协商已答复',
+  withdrawTermination: '终止申请已撤回',
+  disputeTermination: '已提交终止争议',
+  resolveTermination: '终止争议已处理',
 };
-
-const typeMap: Record<string, string> = {
-  enterprise: '企需通',
-  agriculture: '农践帮',
-  research: '科研实践厅',
+const terminationLabels = {
+  pending: '等待另一方答复',
+  agreed: '双方同意终止',
+  rejected: '另一方拒绝',
+  withdrawn: '已撤回',
+  disputed: '等待管理处理',
+  resolved: '管理处理完毕',
+  superseded: '已失效',
 };
-
-const timelineActionMap: Record<string, string> = {
-  created: '创建需求',
-  audit_passed: '审核通过',
-  audit_rejected: '审核驳回',
-  claimed: '已认领',
-  handshake_agreed: '已同意对接',
-  handshake_rejected: '已拒绝对接',
-  arrived: '已抵达现场',
-  task_started: '开始执行',
-  completion_submitted: '已提交成果',
-  completed: '任务完成',
-  failed: '任务失败',
-  resubmitted: '重新提交',
-  terminated: '已终止',
+const eventLabel = (type: string) => eventLabels[type] ?? '任务记录更新';
+const formatTime = (time: number) => {
+  const d = new Date(time + 8 * 3600000);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(
+    d.getUTCDate(),
+  ).padStart(2, '0')} ${String(d.getUTCHours()).padStart(2, '0')}:${String(
+    d.getUTCMinutes(),
+  ).padStart(2, '0')}`;
 };
-
-const isClaimer = computed(() => {
-  return demand.value?.claimer_id === userStore.userInfo?._id;
-});
-
-onLoad((options) => {
-  if (options.id) {
-    demandId.value = options.id;
-    loadDetail();
-  }
-});
-
-const loadDetail = async () => {
-  uni.showLoading({ title: '加载中' });
+function demandCommand<K extends Extract<keyof ContractMap, `demandService.${string}`>>(
+  route: K,
+  data: ContractMap[K]['request'],
+) {
+  return sendDemandCommand(route, data, detail.value?.task_grant_id);
+}
+async function loadMoreEvents() {
+  if (!eventCursor.value || busy.value) return;
+  busy.value = true;
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
-      data: {
-        action: 'get',
-        data: { id: demandId.value },
+    const result = await cloudCall(
+      'demandService.listEvents',
+      {
+        demand_id: id.value,
+        cursor: eventCursor.value,
       },
-    });
-    if (result.code === 0) {
-      demand.value = result.data;
-    }
+      readOptions(),
+    );
+    events.value.push(...result.items);
+    eventCursor.value = result.next_cursor;
+  } catch (e) {
+    error.value = errorMessage(e);
   } finally {
-    uni.hideLoading();
+    busy.value = false;
   }
-};
-
-const handleAudit = async (action: string) => {
-  const comment = action === 'pass' ? '审核通过' : '请修改后重新提交';
-  uni.showLoading({ title: '处理中' });
+}
+async function readPrivate(action: 'getContact' | 'getServiceLocation') {
+  if (busy.value) return;
+  busy.value = true;
+  privateText.value = '';
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
-      data: {
-        action: 'audit',
-        data: {
-          demandId: demandId.value,
-          action,
-          comment,
+    if (action === 'getContact') {
+      const result = await cloudCall(
+        'demandService.getContact',
+        {
+          demand_id: id.value,
+          purpose: '任务履约对接',
         },
-      },
-    });
-    if (result.code === 0) {
-      uni.showToast({ title: '操作成功', icon: 'success' });
-      loadDetail();
+        readOptions(),
+      );
+      privateText.value = `${result.name}：${result.phone}`;
     } else {
-      uni.showToast({ title: result.msg, icon: 'none' });
-    }
-  } finally {
-    uni.hideLoading();
-  }
-};
-
-const claim = async () => {
-  uni.showLoading({ title: '认领中' });
-  try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
-      data: {
-        action: 'claim',
-        data: {
-          demandId: demandId.value,
-        },
-      },
-    });
-    if (result.code === 0) {
-      uni.showToast({ title: '认领成功', icon: 'success' });
-      loadDetail();
-    } else {
-      uni.showToast({ title: result.msg, icon: 'none' });
+      const result = await cloudCall(
+        'demandService.getServiceLocation',
+        { demand_id: id.value },
+        readOptions(),
+      );
+      privateText.value = [result.location_text, result.exact_address].filter(Boolean).join(' · ');
     }
   } catch (e) {
-    //
+    error.value = errorMessage(e);
   } finally {
-    uni.hideLoading();
+    busy.value = false;
   }
-};
-
-const confirmHandshake = async (action: string) => {
-  uni.showLoading({ title: '处理中' });
+}
+const allowed = (a: string) => detail.value?.allowed_actions.includes(a) ?? false;
+async function openChat() {
+  if (busy.value) return;
+  busy.value = true;
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
-      data: {
-        action: 'confirm_handshake',
-        data: {
-          demandId: demandId.value,
-          action,
-        },
-      },
+    const result = await createDemandConversation(
+      id.value,
+      detail.value?.claim?.claim_id,
+      detail.value?.task_grant_id,
+    );
+    uni.navigateTo({
+      url: `/pages/chat/chat-detail?id=${encodeURIComponent(result.conversation_id)}`,
     });
-    if (result.code === 0) {
-      uni.showToast({ title: result.msg, icon: 'success' });
-      loadDetail();
-    } else {
-      uni.showToast({ title: result.msg, icon: 'none' });
-    }
+  } catch (e) {
+    error.value = errorMessage(e);
   } finally {
-    uni.hideLoading();
+    busy.value = false;
   }
-};
-
-const markArrived = async () => {
-  uni.showLoading({ title: '处理中' });
+}
+const needsText = computed(() =>
+  [
+    'review',
+    'confirmClaim',
+    'addProgress',
+    'submitCompletion',
+    'reviewCompletion',
+    'requestRosterChange',
+    'reviewRosterChange',
+    'cancel',
+    'requestTermination',
+    'respondTermination',
+    'disputeTermination',
+    'resolveTermination',
+  ].some(allowed),
+);
+async function chooseTeam(team_id: string) {
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
-      data: {
-        action: 'arrived',
-        data: {
-          demandId: demandId.value,
-        },
-      },
-    });
-    if (result.code === 0) {
-      uni.showToast({ title: '已标记抵达', icon: 'success' });
-      loadDetail();
-    } else {
-      uni.showToast({ title: result.msg, icon: 'none' });
-    }
-  } finally {
-    uni.hideLoading();
+    const members = await cloudCall(
+      'teamService.listMembers',
+      { team_id, page_size: 50 },
+      session.options(),
+    );
+    rosterMembers.value = members.items.filter((m) => m.membership_status === 'active');
+    selectedTeamId.value = team_id;
+    selectedParticipants.value =
+      detail.value?.claim?.assignee_id === team_id
+        ? [...detail.value.claim.participant_user_ids]
+        : session.me
+        ? [session.me.user_id]
+        : [];
+    responsibleId.value = detail.value?.claim?.responsible_user_id ?? session.me?.user_id ?? '';
+  } catch (e) {
+    error.value = errorMessage(e);
   }
-};
-
-const startTaskExecute = async () => {
-  uni.showLoading({ title: '处理中' });
+}
+async function loadTeams() {
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
-      data: {
-        action: 'start_task',
-        data: {
-          demandId: demandId.value,
-        },
-      },
-    });
-    if (result.code === 0) {
-      uni.showToast({ title: '任务已开始', icon: 'success' });
-      loadDetail();
+    if (allowed('requestRosterChange') && detail.value?.claim) {
+      const team = await cloudCall(
+        'teamService.getTeam',
+        { team_id: detail.value.claim.assignee_id },
+        session.options(),
+      );
+      teamChoices.value = [team];
+      teamChoicesCursor.value = null;
+      await chooseTeam(team.team_id);
     } else {
-      uni.showToast({ title: result.msg, icon: 'none' });
+      const result = await cloudCall('teamService.listMyTeams', {}, session.options());
+      teamChoices.value = result.items.filter(
+        (t) => t.status === 'active' && t.leader_user_id === session.me?.user_id,
+      );
+      teamChoicesCursor.value = result.next_cursor;
     }
-  } finally {
-    uni.hideLoading();
+  } catch (e) {
+    error.value = errorMessage(e);
   }
-};
-
-const submitCompletion = async () => {
-  uni.showModal({
-    title: '提交成果',
-    content: '请确认已完成任务并提交成果',
-    success: async (res) => {
-      if (res.confirm) {
-        uni.showLoading({ title: '提交中' });
-        try {
-          const { result } = await wx.cloud.callFunction({
-            name: 'demandService',
-            data: {
-              action: 'submit_completion',
-              data: {
-                demandId: demandId.value,
-                completion_data: '已按要求完成任务',
-              },
-            },
-          });
-          if (result.code === 0) {
-            uni.showToast({ title: '提交成功', icon: 'success' });
-            loadDetail();
-          } else {
-            uni.showToast({ title: result.msg, icon: 'none' });
-          }
-        } finally {
-          uni.hideLoading();
+}
+async function moreTeamChoices() {
+  if (!teamChoicesCursor.value) return;
+  try {
+    const result = await cloudCall(
+      'teamService.listMyTeams',
+      { cursor: teamChoicesCursor.value },
+      session.options(),
+    );
+    teamChoices.value.push(
+      ...result.items.filter(
+        (t) => t.status === 'active' && t.leader_user_id === session.me?.user_id,
+      ),
+    );
+    teamChoicesCursor.value = result.next_cursor;
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
+}
+function toggleParticipant(user_id: string) {
+  selectedParticipants.value = selectedParticipants.value.includes(user_id)
+    ? selectedParticipants.value.filter((id) => id !== user_id)
+    : [...selectedParticipants.value, user_id];
+}
+async function load() {
+  if (!id.value) return;
+  detail.value = null;
+  privateText.value = '';
+  events.value = [];
+  eventCursor.value = null;
+  try {
+    detail.value = await demandDetail(id.value);
+    const result = await cloudCall(
+      'demandService.listEvents',
+      { demand_id: id.value },
+      readOptions(),
+    );
+    events.value = result.items;
+    eventCursor.value = result.next_cursor;
+    error.value = '';
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
+}
+async function act(action: string, decision?: string) {
+  const d = detail.value?.demand;
+  if (!d || busy.value) return;
+  busy.value = true;
+  error.value = '';
+  try {
+    const target = { demand_id: id.value, expected_version: d.version };
+    const termination = detail.value?.termination_request;
+    const terminationTarget = termination
+      ? {
+          ...target,
+          termination_request_id: termination.request_id,
+          request_version: termination.version,
         }
-      }
-    },
-  });
-};
-
-const confirmCompletion = async (action: string) => {
-  uni.showLoading({ title: '处理中' });
-  try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
-      data: {
-        action: 'confirm_completion',
-        data: {
-          demandId: demandId.value,
-          action,
-          reason: action === 'fail' ? '验收未通过' : '',
-        },
-      },
-    });
-    if (result.code === 0) {
-      uni.showToast({ title: '操作成功', icon: 'success' });
-      loadDetail();
-    } else {
-      uni.showToast({ title: result.msg, icon: 'none' });
-    }
+      : null;
+    if (action === 'cancel')
+      await demandCommand('demandService.cancel', { ...target, reason: text.value });
+    else if (action === 'withdrawClaim' && detail.value?.claim)
+      await demandCommand('demandService.withdrawClaim', {
+        ...target,
+        claim_id: detail.value.claim.claim_id,
+      });
+    else if (action === 'requestTermination')
+      await demandCommand('demandService.requestTermination', { ...target, reason: text.value });
+    else if (action === 'respondTermination' && terminationTarget)
+      await demandCommand('demandService.respondTermination', {
+        ...terminationTarget,
+        decision: decision === 'agree' ? 'agree' : 'reject',
+        ...(text.value.trim() ? { reason: text.value } : {}),
+      });
+    else if (action === 'withdrawTermination' && terminationTarget)
+      await demandCommand('demandService.withdrawTermination', terminationTarget);
+    else if (action === 'disputeTermination' && terminationTarget)
+      await demandCommand('demandService.disputeTermination', {
+        ...terminationTarget,
+        reason: text.value,
+      });
+    else if (action === 'resolveTermination' && terminationTarget)
+      await sendDemandCommand('demandService.resolveTermination', {
+        ...terminationTarget,
+        decision: decision === 'terminate' ? 'terminate' : 'continue',
+        reason: text.value,
+      });
+    else if (action === 'claim')
+      await demandCommand('demandService.claim', { ...target, assignee_type: 'user' });
+    else if (action === 'claimTeam')
+      await demandCommand('demandService.claim', {
+        ...target,
+        assignee_type: 'team',
+        team_id: selectedTeamId.value,
+        participant_user_ids: selectedParticipants.value,
+      });
+    else if (action === 'requestRosterChange' && detail.value?.claim)
+      await demandCommand('demandService.requestRosterChange', {
+        ...target,
+        claim_id: detail.value.claim.claim_id,
+        base_roster_version: detail.value.claim.roster_version,
+        participant_user_ids: selectedParticipants.value,
+        responsible_user_id: responsibleId.value,
+        reason: text.value,
+      });
+    else if (action === 'reviewRosterChange' && detail.value?.roster_request)
+      await demandCommand('demandService.reviewRosterChange', {
+        ...target,
+        roster_change_request_id: detail.value.roster_request.request_id,
+        request_version: detail.value.roster_request.version,
+        decision: decision === 'approve' ? 'approve' : 'reject',
+        ...(decision === 'reject' ? { reason: text.value } : {}),
+      });
+    else if (action === 'confirmClaim' && 'claim_id' in d && d.claim_id)
+      await demandCommand('demandService.confirmClaim', {
+        ...target,
+        claim_id: d.claim_id,
+        decision: decision === 'accept' ? 'accept' : 'reject',
+        ...(decision === 'reject' ? { reason: text.value } : {}),
+      });
+    else if (action === 'review' && 'submission_id' in d && d.submission_id)
+      await demandCommand('demandService.review', {
+        ...target,
+        submission_id: d.submission_id,
+        revision: d.revision,
+        decision: decision === 'approve' ? 'approve' : 'reject',
+        ...(decision === 'reject' ? { reason: text.value } : {}),
+      });
+    else if (action === 'addProgress')
+      await demandCommand('demandService.addProgress', {
+        ...target,
+        kind: 'note',
+        text: text.value,
+        attachment_ids: [...evidenceImages.value],
+      });
+    else if (action === 'submitCompletion')
+      await demandCommand('demandService.submitCompletion', {
+        ...target,
+        summary: text.value,
+        attachment_ids: [...evidenceImages.value],
+      });
+    else if (action === 'reviewCompletion' && 'completion_id' in d && d.completion_id)
+      await demandCommand('demandService.reviewCompletion', {
+        ...target,
+        completion_id: d.completion_id,
+        decision: decision === 'accept' ? 'accept' : 'return',
+        ...(decision === 'return' ? { reason: text.value } : {}),
+      });
+    else throw new Error('当前资源信息不完整，请刷新后重试');
+    text.value = '';
+    if (action === 'addProgress' || action === 'submitCompletion') evidenceImages.value = [];
+    await load();
+  } catch (e) {
+    error.value = errorMessage(e);
   } finally {
-    uni.hideLoading();
+    busy.value = false;
   }
-};
-
-const startChat = () => {
-  uni.showToast({ title: 'IM功能开发中', icon: 'none' });
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString();
-};
+}
+async function addEvidence() {
+  if (busy.value || evidenceImages.value.length >= 5) return;
+  busy.value = true;
+  error.value = '';
+  try {
+    evidenceImages.value.push(await uploadImage('progress'));
+  } catch (e) {
+    error.value = errorMessage(e);
+  } finally {
+    busy.value = false;
+  }
+}
+onLoad((options) => {
+  id.value = options?.id ?? '';
+  void load();
+});
 </script>
-
-<style lang="scss">
-.container {
-  padding: 30rpx;
-  background-color: #fff;
-  min-height: 100vh;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30rpx;
-  padding-bottom: 20rpx;
-  border-bottom: 1px solid #eee;
-
-  .title {
-    font-size: 36rpx;
-    font-weight: bold;
-  }
-
-  .status-tag {
-    font-size: 24rpx;
-    padding: 6rpx 16rpx;
-    border-radius: 8rpx;
-    background-color: #f0f0f0;
-
-    &.pending_audit {
-      background-color: #fff7e6;
-      color: #fa8c16;
-    }
-    &.open {
-      background-color: #e6f7ff;
-      color: #1890ff;
-    }
-    &.matched {
-      background-color: #f6ffed;
-      color: #52c41a;
-    }
-  }
-}
-
-.info-section {
-  margin-bottom: 30rpx;
-  .info-row {
-    display: flex;
-    margin-bottom: 10rpx;
-    font-size: 28rpx;
-    .label {
-      color: #999;
-      width: 140rpx;
-    }
-    .value {
-      color: #333;
-    }
-  }
-}
-
-.content-section {
-  margin-bottom: 50rpx;
-  .section-title {
-    font-size: 30rpx;
-    font-weight: bold;
-    margin-bottom: 20rpx;
-  }
-  .content-text {
-    font-size: 28rpx;
-    line-height: 1.6;
-    color: #666;
-  }
-}
-
-.action-area {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 30rpx;
-  background-color: #fff;
-  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.mt-20 {
-  margin-top: 20rpx;
-}
-
-.match-info {
-  background-color: #f8f8f8;
-  padding: 20rpx;
-  border-radius: 12rpx;
-}
-
-.timeline-section {
-  margin-bottom: 30rpx;
-  padding: 20rpx;
-  background-color: #f9f9f9;
-  border-radius: 12rpx;
-
-  .section-title {
-    font-size: 30rpx;
-    font-weight: bold;
-    margin-bottom: 20rpx;
-  }
-
-  .timeline {
-    .timeline-item {
-      display: flex;
-      padding-bottom: 20rpx;
-      position: relative;
-
-      &:not(:last-child)::before {
-        content: '';
-        position: absolute;
-        left: 10rpx;
-        top: 20rpx;
-        width: 2rpx;
-        height: calc(100% - 10rpx);
-        background-color: #e0e0e0;
-      }
-
-      .timeline-dot {
-        width: 20rpx;
-        height: 20rpx;
-        border-radius: 50%;
-        background-color: #ccc;
-        margin-right: 20rpx;
-        flex-shrink: 0;
-      }
-
-      &.active .timeline-dot {
-        background-color: #1890ff;
-      }
-
-      .timeline-content {
-        flex: 1;
-
-        .timeline-action {
-          font-size: 28rpx;
-          font-weight: bold;
-          color: #333;
-        }
-
-        .timeline-user {
-          font-size: 24rpx;
-          color: #666;
-        }
-
-        .timeline-time {
-          font-size: 22rpx;
-          color: #999;
-        }
-
-        .timeline-comment {
-          font-size: 24rpx;
-          color: #666;
-          margin-top: 8rpx;
-          padding: 8rpx;
-          background-color: #fff;
-          border-radius: 6rpx;
-        }
-      }
-    }
-  }
-}
-</style>

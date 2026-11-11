@@ -1,149 +1,211 @@
 <template>
-  <view class="container">
-    <view class="form-section">
-      <view class="section-title">基本信息</view>
-
-      <view class="form-item">
-        <view class="label">姓名</view>
-        <wd-input v-model="formData.name" placeholder="请输入真实姓名" />
+  <PageShell>
+    <text class="heading">个人资料</text>
+    <text class="page-description">让一起协作的人，更容易认识你。</text>
+    <template v-if="session.me">
+      <view class="profile-photo-section">
+        <UserAvatar
+          :user-id="session.me.user_id"
+          :file-id="session.me.avatar_file_id"
+          :preview-src="localPhoto"
+          :refresh-key="avatarRefresh"
+          large
+          @load-error="avatarError = $event"
+        />
+        <text class="photo-state">{{ photoState }}</text>
+        <text v-if="avatarError && !localPhoto" class="muted photo-hint">{{ avatarError }}</text>
+        <view class="photo-actions">
+          <button class="secondary photo-select" :disabled="busy" @click="chooseAvatar">
+            {{ operation === 'upload' ? '正在上传并检查…' : '更换头像' }}
+          </button>
+          <button v-if="localPhoto" class="text-button" :disabled="busy" @click="resetPhoto">
+            恢复原头像
+          </button>
+        </view>
+        <text class="muted photo-hint">支持 JPEG、PNG、WebP，图片不超过5MB</text>
       </view>
-
-      <view class="form-item">
-        <view class="label">联系电话</view>
-        <wd-input v-model="formData.phone" type="number" placeholder="请输入联系电话" />
+      <view class="form-panel">
+        <label class="input-label" for="profile-nickname">昵称</label>
+        <input
+          id="profile-nickname"
+          v-model="name"
+          :disabled="busy"
+          maxlength="40"
+          placeholder="填写昵称"
+        />
+        <text class="muted input-hint">1—40字，用于需求、团队与协作沟通</text>
       </view>
-
-      <view class="form-item" v-if="userStore.role === 'farmer'">
-        <view class="label">地址</view>
-        <wd-input v-model="formData.address" placeholder="请输入详细地址" />
+      <view v-if="error" class="feedback feedback-error">
+        <text>{{ error }}</text>
+        <button class="text-button" :disabled="busy" @click="diagnose">检查相册访问</button>
       </view>
-
-      <view class="form-item" v-if="userStore.role === 'school_admin'">
-        <view class="label">学校</view>
-        <wd-input v-model="formData.school" placeholder="请输入学校名称" />
-      </view>
-
-      <view class="form-item" v-if="userStore.role === 'school_admin'">
-        <view class="label">院系</view>
-        <wd-input v-model="formData.department" placeholder="请输入院系名称" />
-      </view>
-    </view>
-
-    <view class="submit-area">
-      <wd-button type="primary" block @click="handleSave" :loading="loading">保存修改</wd-button>
-    </view>
-  </view>
+      <text v-if="diagnosis" class="muted diagnostic-result">{{ diagnosis }}</text>
+      <text v-if="message" class="feedback feedback-success">{{ message }}</text>
+      <button class="primary save-profile" :disabled="saveDisabled" @click="save">
+        {{ operation === 'save' ? '正在保存…' : '保存资料' }}
+      </button>
+      <text v-if="localPhoto && !avatar && !busy" class="muted save-hint"
+        >新头像尚未上传成功，请重新选择或恢复原头像。</text
+      >
+    </template>
+    <view v-else class="empty-state"
+      ><text class="empty-title">登录后编辑个人资料</text
+      ><button class="primary" @click="goLogin">微信登录</button></view
+    >
+  </PageShell>
 </template>
-
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
-
-const userStore = useUserStore();
-const loading = ref(false);
-
-const formData = reactive({
-  name: '',
-  phone: '',
-  address: '',
-  school: '',
-  department: '',
-});
-
-onMounted(() => {
-  if (userStore.userInfo) {
-    formData.name = userStore.userInfo.name || '';
-    formData.phone = userStore.userInfo.phone || '';
-    formData.address = userStore.userInfo.audit_materials?.address || '';
-    formData.school = userStore.userInfo.audit_materials?.school || '';
-    formData.department = userStore.userInfo.audit_materials?.department || '';
-  }
-});
-
-/**
- * Save profile changes
- */
-const handleSave = async (): Promise<void> => {
-  if (!formData.name || !formData.phone) {
-    uni.showToast({ title: '请填写完整信息', icon: 'none' });
-    return;
-  }
-
-  loading.value = true;
+import { computed, ref } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
+import PageShell from '../../components/PageShell.vue';
+import UserAvatar from '../../components/UserAvatar.vue';
+import { useSessionStore } from '../../stores/session';
+import { businessCommand } from '../../services/businessCommand';
+import { uploadImage } from '../../services/fileV1';
+import { errorMessage } from '../../utils/display';
+import { diagnosePhotoAccess } from '../../utils/photo-diagnostics';
+const session = useSessionStore();
+const name = ref('');
+const avatar = ref('');
+const busy = ref(false);
+const error = ref('');
+const message = ref('');
+const diagnosis = ref('');
+const localPhoto = ref('');
+const avatarError = ref('');
+const avatarRefresh = ref(0);
+const operation = ref<'upload' | 'save' | null>(null);
+const photoState = computed(() =>
+  operation.value === 'upload'
+    ? '正在上传并进行内容检查'
+    : avatar.value
+    ? '新头像已就绪，保存后生效'
+    : localPhoto.value
+    ? '已选择图片，尚未上传成功'
+    : '当前头像',
+);
+const saveDisabled = computed(
+  () => busy.value || !name.value.trim() || Boolean(localPhoto.value && !avatar.value),
+);
+const goLogin = () => uni.navigateTo({ url: '/pages/login/login' });
+function resetPhoto() {
+  localPhoto.value = '';
+  avatar.value = '';
+  error.value = '';
+  message.value = '';
+  avatarRefresh.value++;
+}
+async function diagnose() {
+  if (busy.value) return;
+  busy.value = true;
   try {
-    const updateData: any = {
-      name: formData.name,
-      phone: formData.phone,
-    };
-
-    if (userStore.role === 'farmer') {
-      updateData.audit_materials = {
-        ...userStore.userInfo?.audit_materials,
-        address: formData.address,
-      };
-    }
-
-    if (userStore.role === 'school_admin') {
-      updateData.audit_materials = {
-        ...userStore.userInfo?.audit_materials,
-        school: formData.school,
-        department: formData.department,
-      };
-    }
-
-    const success = await userStore.updateProfile(updateData);
-    loading.value = false;
-
-    if (success) {
-      uni.showToast({ title: '保存成功', icon: 'success' });
-      setTimeout(() => {
-        uni.navigateBack();
-      }, 1500);
-    }
-  } catch (error) {
-    loading.value = false;
-    uni.showToast({ title: '保存失败', icon: 'none' });
+    diagnosis.value = await diagnosePhotoAccess();
+  } finally {
+    busy.value = false;
   }
-};
+}
+async function chooseAvatar() {
+  if (busy.value) return;
+  busy.value = true;
+  operation.value = 'upload';
+  error.value = '';
+  message.value = '';
+  try {
+    avatar.value = await uploadImage('avatar', {
+      onSelected: (path) => {
+        localPhoto.value = path;
+        avatar.value = '';
+      },
+    });
+    error.value = '';
+    message.value = '';
+  } catch (e) {
+    error.value = errorMessage(e);
+  } finally {
+    busy.value = false;
+    operation.value = null;
+  }
+}
+async function save() {
+  if (saveDisabled.value || !session.me) return;
+  busy.value = true;
+  operation.value = 'save';
+  try {
+    await businessCommand('userService.updateProfile', {
+      display_name: name.value.trim(),
+      ...(avatar.value ? { avatar_file_id: avatar.value } : {}),
+    });
+    await session.refresh();
+    avatar.value = '';
+    localPhoto.value = '';
+    avatarRefresh.value++;
+    message.value = '资料已保存';
+    error.value = '';
+  } catch (e) {
+    error.value = errorMessage(e);
+  } finally {
+    busy.value = false;
+    operation.value = null;
+  }
+}
+onShow(() => {
+  if (busy.value) return;
+  name.value = session.me?.display_name ?? '';
+  avatar.value = '';
+  message.value = '';
+  localPhoto.value = '';
+  avatarRefresh.value++;
+});
 </script>
-
-<style lang="scss" scoped>
-.container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 30rpx;
+<style scoped>
+.profile-photo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 44rpx 20rpx 36rpx;
+  margin-top: 28rpx;
+  background: #eaf2ed;
+  border-radius: 32rpx;
 }
-
-.form-section {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-
-  .section-title {
-    font-size: 32rpx;
-    font-weight: bold;
-    margin-bottom: 30rpx;
-    color: #333;
-  }
-
-  .form-item {
-    margin-bottom: 30rpx;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    .label {
-      font-size: 28rpx;
-      font-weight: bold;
-      margin-bottom: 16rpx;
-      color: #333;
-    }
-  }
+.photo-state {
+  font-size: 0.94em;
+  font-weight: 600;
+  margin-top: 22rpx;
 }
-
-.submit-area {
+.photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+.photo-select {
+  min-width: 220rpx;
+}
+.photo-hint {
+  font-size: 0.83em;
+  text-align: center;
+}
+.form-panel {
   margin-top: 40rpx;
+}
+.input-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+.input-hint {
+  font-size: 0.86em;
+}
+.save-profile {
+  margin-top: 48rpx;
+}
+.save-hint {
+  display: block;
+  font-size: 0.86em;
+  text-align: center;
+}
+.diagnostic-result {
+  display: block;
+  font-size: 0.86em;
+  overflow-wrap: anywhere;
 }
 </style>

@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "properties": {
+    "file_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "check_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "pass",
+        "reject",
+        "error"
+      ]
+    }
+  },
+  "required": [
+    "file_id",
+    "check_status"
+  ],
+  "additionalProperties": false
+}

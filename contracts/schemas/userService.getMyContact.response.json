@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "properties": {
+    "contact_name": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 40
+    },
+    "contact_phone": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 11
+    },
+    "source_application_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "contact_name",
+    "contact_phone",
+    "source_application_id"
+  ],
+  "additionalProperties": false
+}

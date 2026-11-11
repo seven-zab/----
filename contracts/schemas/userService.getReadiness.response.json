@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "migration_verified": {
+      "type": "boolean"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "migration_required",
+        "unavailable"
+      ]
+    }
+  },
+  "required": [
+    "migration_verified",
+    "state"
+  ],
+  "additionalProperties": false
+}

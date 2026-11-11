@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "material_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "maxItems": 5,
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "contact_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "contact_phone": {
+      "type": "string",
+      "pattern": "^1[3-9][0-9]{9}$"
+    },
+    "source_grant_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "profile_kind": {
+      "type": "string",
+      "enum": [
+        "teacher",
+        "student"
+      ]
+    },
+    "school_identity_number": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50
+    }
+  },
+  "required": [
+    "material_ids",
+    "contact_name",
+    "contact_phone",
+    "source_grant_id",
+    "profile_kind",
+    "school_identity_number"
+  ],
+  "additionalProperties": false
+}

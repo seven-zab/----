@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "invitation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "rejected"
+      ]
+    }
+  },
+  "required": [
+    "invitation_id",
+    "status"
+  ],
+  "additionalProperties": false
+}

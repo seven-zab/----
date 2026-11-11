@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "phone": {
+      "type": "string",
+      "pattern": "^1[3-9][0-9]{9}$"
+    }
+  },
+  "required": [
+    "name",
+    "phone"
+  ],
+  "additionalProperties": false
+}

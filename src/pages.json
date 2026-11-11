@@ -6,6 +6,21 @@
         "navigationBarTitleText": "云治乡智"
       }
     },
+    { "path": "pages/managed-tasks/index", "style": { "navigationBarTitleText": "辖区任务" } },
+    { "path": "pages/maintenance/manage", "style": { "navigationBarTitleText": "保留与作业管理" } },
+    { "path": "pages/ai-assistant/index", "style": { "navigationBarTitleText": "AI业务助手" } },
+    {
+      "path": "pages/teams/teams",
+      "style": { "navigationBarTitleText": "我的团队" }
+    },
+    {
+      "path": "pages/delegations/delegations",
+      "style": { "navigationBarTitleText": "本次代发授权" }
+    },
+    {
+      "path": "pages/notifications/notifications",
+      "style": { "navigationBarTitleText": "系统通知" }
+    },
     {
       "path": "pages/chat/chat",
       "style": {
@@ -79,6 +94,22 @@
       }
     },
     {
+      "path": "pages/policy/manage",
+      "style": { "navigationBarTitleText": "政策与轮播管理" }
+    },
+    {
+      "path": "pages/knowledge/manage",
+      "style": { "navigationBarTitleText": "知识库管理" }
+    },
+    {
+      "path": "pages/workbench/workbench",
+      "style": { "navigationBarTitleText": "管理工作台" }
+    },
+    {
+      "path": "pages/stats-dashboard/stats-dashboard",
+      "style": { "navigationBarTitleText": "统计与报表" }
+    },
+    {
       "path": "pages/audit-manage/audit-manage",
       "style": {
         "navigationBarTitleText": "身份审核"
@@ -86,17 +117,6 @@
     }
   ],
   "subPackages": [
-    {
-      "root": "pages/debug",
-      "pages": [
-        {
-          "path": "test-runner",
-          "style": {
-            "navigationBarTitleText": "测试控制台"
-          }
-        }
-      ]
-    },
     {
       "root": "pages/customer-service",
       "pages": [
@@ -112,12 +132,12 @@
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "云治乡智",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
+    "navigationBarBackgroundColor": "#F3F7F5",
+    "backgroundColor": "#F3F7F5"
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#007AFF",
+    "color": "#76887E",
+    "selectedColor": "#216653",
     "backgroundColor": "#FFFFFF",
     "list": [
       {

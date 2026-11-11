@@ -1,3 +1,4 @@
+import { legacyCall } from '@/services/legacyCloudClient';
 import { useUserStore } from '@/stores/user';
 
 export interface DemandFormData {
@@ -83,7 +84,9 @@ const checkClaimPermission = (): { allowed: boolean; error?: string } => {
   return { allowed: true };
 };
 
-export const publishDemand = async (data: DemandFormData): Promise<{ success: boolean; error?: string; demandId?: string }> => {
+export const publishDemand = async (
+  data: DemandFormData,
+): Promise<{ success: boolean; error?: string; demandId?: string }> => {
   const validation = validateDemandForm(data);
   if (!validation.valid) {
     return { success: false, error: validation.error };
@@ -105,7 +108,7 @@ export const publishDemand = async (data: DemandFormData): Promise<{ success: bo
       attachments: data.attachments || [],
     };
 
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<{ _id?: string }>({
       name: 'demandService',
       data: {
         action: 'create',
@@ -123,14 +126,18 @@ export const publishDemand = async (data: DemandFormData): Promise<{ success: bo
   }
 };
 
-export const getMyDemands = async (): Promise<{ success: boolean; data?: DemandListResult; error?: string }> => {
+export const getMyDemands = async (): Promise<{
+  success: boolean;
+  data?: DemandListResult;
+  error?: string;
+}> => {
   const userStore = useUserStore();
   if (!userStore.isLoggedIn) {
     return { success: false, error: '请先登录' };
   }
 
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<DemandListResult>({
       name: 'demandService',
       data: {
         action: 'getMyDemands',
@@ -147,13 +154,15 @@ export const getMyDemands = async (): Promise<{ success: boolean; data?: DemandL
   }
 };
 
-export const getDemandDetail = async (demandId: string): Promise<{ success: boolean; data?: Demand; error?: string }> => {
+export const getDemandDetail = async (
+  demandId: string,
+): Promise<{ success: boolean; data?: Demand; error?: string }> => {
   if (!demandId) {
     return { success: false, error: '需求ID不能为空' };
   }
 
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<Demand>({
       name: 'demandService',
       data: {
         action: 'getDetail',
@@ -171,7 +180,11 @@ export const getDemandDetail = async (demandId: string): Promise<{ success: bool
   }
 };
 
-export const auditDemand = async (demandId: string, action: 'approve' | 'reject', reason?: string): Promise<{ success: boolean; error?: string }> => {
+export const auditDemand = async (
+  demandId: string,
+  action: 'approve' | 'reject',
+  reason?: string,
+): Promise<{ success: boolean; error?: string }> => {
   const permission = checkAuditPermission();
   if (!permission.allowed) {
     return { success: false, error: permission.error };
@@ -182,7 +195,7 @@ export const auditDemand = async (demandId: string, action: 'approve' | 'reject'
   }
 
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<null>({
       name: 'demandService',
       data: {
         action: 'audit',
@@ -200,7 +213,9 @@ export const auditDemand = async (demandId: string, action: 'approve' | 'reject'
   }
 };
 
-export const claimTask = async (demandId: string): Promise<{ success: boolean; error?: string }> => {
+export const claimTask = async (
+  demandId: string,
+): Promise<{ success: boolean; error?: string }> => {
   const permission = checkClaimPermission();
   if (!permission.allowed) {
     return { success: false, error: permission.error };
@@ -211,7 +226,7 @@ export const claimTask = async (demandId: string): Promise<{ success: boolean; e
   }
 
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<null>({
       name: 'demandService',
       data: {
         action: 'claim',
@@ -229,14 +244,18 @@ export const claimTask = async (demandId: string): Promise<{ success: boolean; e
   }
 };
 
-export const getClaimedTasks = async (): Promise<{ success: boolean; data?: DemandListResult; error?: string }> => {
+export const getClaimedTasks = async (): Promise<{
+  success: boolean;
+  data?: DemandListResult;
+  error?: string;
+}> => {
   const userStore = useUserStore();
   if (!userStore.isLoggedIn) {
     return { success: false, error: '请先登录' };
   }
 
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<DemandListResult>({
       name: 'demandService',
       data: {
         action: 'getClaimedTasks',
@@ -253,14 +272,18 @@ export const getClaimedTasks = async (): Promise<{ success: boolean; data?: Dema
   }
 };
 
-export const getPendingDemands = async (): Promise<{ success: boolean; data?: DemandListResult; error?: string }> => {
+export const getPendingDemands = async (): Promise<{
+  success: boolean;
+  data?: DemandListResult;
+  error?: string;
+}> => {
   const permission = checkAuditPermission();
   if (!permission.allowed) {
     return { success: false, error: permission.error };
   }
 
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<DemandListResult>({
       name: 'demandService',
       data: {
         action: 'getPendingDemands',
@@ -277,9 +300,4 @@ export const getPendingDemands = async (): Promise<{ success: boolean; data?: De
   }
 };
 
-export {
-  validateDemandForm,
-  checkPublishPermission,
-  checkAuditPermission,
-  checkClaimPermission,
-};
+export { validateDemandForm, checkPublishPermission, checkAuditPermission, checkClaimPermission };

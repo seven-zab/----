@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "export_job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "export_job_id"
+  ],
+  "additionalProperties": false
+}

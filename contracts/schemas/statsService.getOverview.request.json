@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "properties": {
+    "business_scene": {
+      "type": "string",
+      "enum": [
+        "village",
+        "campus"
+      ]
+    },
+    "campus_organization_id": {
+      "const": "sztu"
+    },
+    "scope_region_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "start_at": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "end_at": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "enterprise",
+        "agriculture",
+        "research",
+        "campus"
+      ]
+    }
+  },
+  "required": [
+    "start_at",
+    "end_at"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "job_id"
+  ],
+  "additionalProperties": false
+}

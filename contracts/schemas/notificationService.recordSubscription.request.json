@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "properties": {
+    "template_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "accept",
+        "reject",
+        "ban"
+      ]
+    },
+    "client_request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "template_key",
+    "result",
+    "client_request_id"
+  ],
+  "additionalProperties": false
+}

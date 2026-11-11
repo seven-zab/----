@@ -1,0 +1,314 @@
+{
+  "algorithm": "contracts-and-runtime-v2",
+  "source_hash": "a2bf70168f55eec4e21bdb89b24b21e0874df016543c4d92829b86fd474ebb2e",
+  "files": [
+    {
+      "path": "package-lock.json",
+      "sha256": "aec5775c9527d6b2a0f599dce3c8c2629ba5aec23bdb0c5a9b96ba7011de117e"
+    },
+    {
+      "path": "package.json",
+      "sha256": "280519fe00af330a531c7d03fef0506e9bfe8dc0194749fef47b6b0a048e1989"
+    },
+    {
+      "path": "server/adapters/cloudbase-files.ts",
+      "sha256": "c50657a951d4d13700bc0dc1155abf4ce1345b1588aa7a4225abc961f0743917"
+    },
+    {
+      "path": "server/adapters/cloudbase-repository.ts",
+      "sha256": "bcac4b7f807eabc83e17b959a008d5d155dce26d1079532dddcf6d4de3bdb733"
+    },
+    {
+      "path": "server/adapters/cloudbase-upload.ts",
+      "sha256": "a1dadd071d0aba832240f53fd08aa64e946208ca03bdd98edbf5bc4c0e91c7e6"
+    },
+    {
+      "path": "server/adapters/content-safety.ts",
+      "sha256": "ac7fd5fa68424c38d14d867f80387843fbac4561be849a223b336e9680920090"
+    },
+    {
+      "path": "server/adapters/cos-file-access.ts",
+      "sha256": "9c9e902b58c5f264ca2c152f4be8d553c19f0f9f97d396351bece607585ee754"
+    },
+    {
+      "path": "server/adapters/cos-upload-ticket.ts",
+      "sha256": "10fb215491d254406eb55cb6cb333f131ddcc2b0460f411d4e2dffed6298f3f2"
+    },
+    {
+      "path": "server/adapters/knowledge-import.ts",
+      "sha256": "d535b1af3feb3e1d8d3199315c0ffe42d0d8d5e867a7dc9b892b77cdc96feeb4"
+    },
+    {
+      "path": "server/adapters/model.ts",
+      "sha256": "1979095f85c5614e5039cb57a125f4c0a5f89b972f1e9e2fffd4bcd788d076e5"
+    },
+    {
+      "path": "server/adapters/subscription.ts",
+      "sha256": "b40d40055449ab787320e244908be557a055a226459aca8b8a0c1160247a0250"
+    },
+    {
+      "path": "server/adapters/wechat-request.ts",
+      "sha256": "36f28c28cefa51a40cc014d9b1d50e63b28f6bd07b34cef943dbfb55d984bd59"
+    },
+    {
+      "path": "server/core/command.ts",
+      "sha256": "41dcf70e2b9f14ab96889d9b41e95489f7e38a038691a5eb5cafce9e62a0ed89"
+    },
+    {
+      "path": "server/core/entities.ts",
+      "sha256": "513a9a190310a12b40a39318e09ef0d32a588e0a57f3986616e74199ac6608a6"
+    },
+    {
+      "path": "server/core/errors.ts",
+      "sha256": "c019cfba2a01ab01298d951463db98747b319d2884262ebb01b2e09d4dc2606b"
+    },
+    {
+      "path": "server/core/hash.ts",
+      "sha256": "5215bdf93ef731a4dbdadc5e0bd4fcd4719116a7588c22ab6c8bf7140d93d12f"
+    },
+    {
+      "path": "server/core/pagination.ts",
+      "sha256": "ab60c934b2106e832f4f6c67939948d3253e9240b66397f91ee5fd276e54e941"
+    },
+    {
+      "path": "server/core/policy.ts",
+      "sha256": "711ccfbb16a1b7f1b7e94bb2bacda00212a61b775215d81c124bea5f2121ea83"
+    },
+    {
+      "path": "server/core/private-data.ts",
+      "sha256": "21de7efd91c2d8affaf869af3ab946ce8c71499b1ccf38fa3b63b4fe054a0c93"
+    },
+    {
+      "path": "server/core/quarantine.ts",
+      "sha256": "7bd12ae9c308e2b47dfa1962df645e26da5416727b1b2273bbe8fcff4b3e192c"
+    },
+    {
+      "path": "server/core/rate-limit.ts",
+      "sha256": "0767f833640d60b288f2f4fe2f07d4545ad0810596e45081a032f2ebc724ef72"
+    },
+    {
+      "path": "server/core/readiness.ts",
+      "sha256": "0681269ff5ef13c65683315b015024f011766c57152d8bbaa09c91a68456b4ae"
+    },
+    {
+      "path": "server/core/repository.ts",
+      "sha256": "13e461b07e454843b76d8e4f1f703357336ca6e57a5bb498504ed429e214960e"
+    },
+    {
+      "path": "server/core/request.ts",
+      "sha256": "2d864e95eb942bf1c4dff380f08d1bb3a70eb624b8b5ba7e93703e6987a40e8a"
+    },
+    {
+      "path": "server/entry.ts",
+      "sha256": "3c1696f91baa12173c8bfca9af09679f58eb394134262bdf072b42618d3ddaa5"
+    },
+    {
+      "path": "server/handler.ts",
+      "sha256": "87621425c228606e513d5dbc910e665f6c1064bec9e4fa31b4058886cc335cba"
+    },
+    {
+      "path": "server/jobs-entry.ts",
+      "sha256": "46a36a8c6a5ed6f9201d8d9fe76e644f1d415decc48123c2c53309d193b24d73"
+    },
+    {
+      "path": "server/maintenance/acceptance-scope.ts",
+      "sha256": "1fd6f97e3c1fb94b16c1e3b757b9570fe115752b6e315adbc348e6dff424cdc1"
+    },
+    {
+      "path": "server/maintenance/ai-jobs.ts",
+      "sha256": "ae21b4af56e428684b2bc51fe6a40088924db187d8bcc27ef4edf8d688fc6fe2"
+    },
+    {
+      "path": "server/maintenance/ai-model-acceptance.ts",
+      "sha256": "8f706b681c04013c22f225750732edf14562437f0bad99e00c9f566ec8951588"
+    },
+    {
+      "path": "server/maintenance/bootstrap-admin.ts",
+      "sha256": "fb1e108818530fa02cd311e7cd3671e382a078b06a3e96c9e96b0ba62cb4542e"
+    },
+    {
+      "path": "server/maintenance/business-jobs.ts",
+      "sha256": "41fe7bd5309e77b4ddc20571c703b817df46b4b109916b80ce0ce27d7e9524f6"
+    },
+    {
+      "path": "server/maintenance/business-stages.ts",
+      "sha256": "00bc9621c1164b73e172e05e56699dd74c095ec6f0c460838756faab119f2dd0"
+    },
+    {
+      "path": "server/maintenance/export-jobs.ts",
+      "sha256": "94d1318025f80665e6ff7b52387fb515903e25691e8ac5beec99b3c6a18f28de"
+    },
+    {
+      "path": "server/maintenance/fenced-repository.ts",
+      "sha256": "ee1082c14e2044d32e1f36aa2cdcbde128ad15b67a61998aff809cbf7b42e68b"
+    },
+    {
+      "path": "server/maintenance/retention-jobs.ts",
+      "sha256": "f366bb4c9ce4cbf9ab1eb9c27e5dec7751d30e88c830da48ad4acc43b1fbd516"
+    },
+    {
+      "path": "server/maintenance/retention-safety.ts",
+      "sha256": "887c23f82922ba8b4274dc33e2570c9231dbd802c87c4c9ac14d55040c0a5abb"
+    },
+    {
+      "path": "server/maintenance/scan.ts",
+      "sha256": "9515b027ae1c0b08b29a05667b4eee0d0821bf219ef2ecc1486cb51d79361e9e"
+    },
+    {
+      "path": "server/maintenance/storage-cleanup.ts",
+      "sha256": "a904ec278e1280c2acc239db474327e585b97efb8af653795e1b6abfb966fb47"
+    },
+    {
+      "path": "server/maintenance/storage-jobs.ts",
+      "sha256": "d7f58e2323e245426ed9634c993209a1bc858cb199537d0ec22e63dfd94e180f"
+    },
+    {
+      "path": "server/maintenance/subscription-jobs.ts",
+      "sha256": "7a0bf7ce4d0055ad4658d11add3401956bbeafc85a8e0342dd6418fa1d4c893f"
+    },
+    {
+      "path": "server/modules/ai/executor.ts",
+      "sha256": "52f2c524207c9eff83a7752940d38a87d8dedbad13560e24369883ad7a34f77b"
+    },
+    {
+      "path": "server/modules/ai/quota.ts",
+      "sha256": "6fb0f54f17ac79d9b9f180ba19a22a3f7b3f87b750b155394afe1001ab6a2ee4"
+    },
+    {
+      "path": "server/modules/ai/service.ts",
+      "sha256": "2a7d7fbe7056a8d07c7ac01155906988c3d40e76cdddd4765d8e39d197ca8d72"
+    },
+    {
+      "path": "server/modules/ai/types.ts",
+      "sha256": "e018888308f6ea492849ece4f710d2b38e823ca6ef052257051854cc70737c20"
+    },
+    {
+      "path": "server/modules/chat/service.ts",
+      "sha256": "0ca27a84a2b56ebb46386a70e10911c016c3605a9dcb92af6884dc0af3748374"
+    },
+    {
+      "path": "server/modules/demand/service.ts",
+      "sha256": "1be2d9fb349a67ce4581a11c86be4ba51326b8b97204060af195a3dfc23fe6d7"
+    },
+    {
+      "path": "server/modules/demand/visibility.ts",
+      "sha256": "81686696a4f8b09e24c8f626e7a65b7692d052bc2643ba54c57bc3f1eb8d0bde"
+    },
+    {
+      "path": "server/modules/file/demand-access.ts",
+      "sha256": "5b2db2e8b61bd6d6774d275c5f3eb8c8e6be6ce728686ba67ede04d8c2ec999f"
+    },
+    {
+      "path": "server/modules/file/service.ts",
+      "sha256": "b5c1047f04c2c8bef763e992ab7776ef56f1faa06418aeade5e39b03c927631f"
+    },
+    {
+      "path": "server/modules/knowledge/service.ts",
+      "sha256": "1c0fb207eb1b5c90eede62aacf7701b41d2f0ba3d371f73956fd8c549ae69e74"
+    },
+    {
+      "path": "server/modules/maintenance/service.ts",
+      "sha256": "2e9f853b2ce90e238ac9497a6d092bce21670d9dd3701701397838e8561fbb0d"
+    },
+    {
+      "path": "server/modules/notification/service.ts",
+      "sha256": "5dab90a450c30ef3fda3c1a9cc9625f35b72cee5d0dfe362387b4604c802997e"
+    },
+    {
+      "path": "server/modules/policy/service.ts",
+      "sha256": "64fd38286c510eb9bf76382aa81685745e7a5106e7991de7886d52326fdba291"
+    },
+    {
+      "path": "server/modules/stats/aggregate.ts",
+      "sha256": "2f10df17cc362e546a6599de1bad902d143633833e95ae141707705b216f1ae2"
+    },
+    {
+      "path": "server/modules/stats/report.ts",
+      "sha256": "01488a5d757c0dcbc2e96f64331c53cec5b79121bf0093c13c1c91b60deae863"
+    },
+    {
+      "path": "server/modules/stats/service.ts",
+      "sha256": "7e2dd7397c3d103c21cf48e1c923ffcdfd5a5d8d2b8573508612e624a4148d62"
+    },
+    {
+      "path": "server/modules/team/service.ts",
+      "sha256": "3e4cf4020a963cd30e98322b77c9ef8d27b2a7ec9744f0084a222ec748ff8820"
+    },
+    {
+      "path": "server/modules/user/delegation.ts",
+      "sha256": "a8510eb47a6609d1ad531d5a0cdf1e200aba4c55b7b02fe1e23935805008255f"
+    },
+    {
+      "path": "server/modules/user/service.ts",
+      "sha256": "46e40dc03ed2404e183fcfc2a2daa5aca25d9a6e0dd6f18ffcd4f8e78651d119"
+    },
+    {
+      "path": "src/services/aiV1.ts",
+      "sha256": "6f9bf3fe52ae9642c6808814b902605ff11dbef0e3699d9474984b29d0dd6c17"
+    },
+    {
+      "path": "src/services/businessCommand.ts",
+      "sha256": "876fe12d5343fd3179f714aac5771ac5ffc1314c4c4b3f03a791bb1a155a6a0a"
+    },
+    {
+      "path": "src/services/chatService.ts",
+      "sha256": "5600e042e21ef10e2b4d35837c0691a4c56f264bcf6c87bba5f2fc4b0607524b"
+    },
+    {
+      "path": "src/services/chatV1.ts",
+      "sha256": "63abd9f2df019d66ae7042b41953e9c7f7a15656992402225656cdbe63aee47c"
+    },
+    {
+      "path": "src/services/cloudClient.ts",
+      "sha256": "5883e1857e41f524a06407a514a585e891edba55e2d242fb75cb256e1a582c33"
+    },
+    {
+      "path": "src/services/demandService.ts",
+      "sha256": "20690191a4126f1857a18f14600d3c62f752548b68f443e76f53a9d7fa966671"
+    },
+    {
+      "path": "src/services/demandV1.ts",
+      "sha256": "910089d481eab996983bb62e92af991cf30f7ab8a9d48e2cd0cc8ee5dbee9ea4"
+    },
+    {
+      "path": "src/services/fileV1.ts",
+      "sha256": "af96eb4826e1f141302f50eb1ba6fd8e2873cd35e3e1560a1d577b87a2d31b6f"
+    },
+    {
+      "path": "src/services/knowledgeV1.ts",
+      "sha256": "9a8733b88728182d1c11448c8bf94ee59d1a829baf44e75439946d9d64089425"
+    },
+    {
+      "path": "src/services/legacyCloudClient.ts",
+      "sha256": "26b6e2a796adfbab65115638c37cc8c792860d69b673d46fb106170a2db62e77"
+    },
+    {
+      "path": "src/services/policyV1.ts",
+      "sha256": "5401b8fef057fa21c0e57245625825aa9febe5dbc53262d6ddfaf48a10b497b0"
+    },
+    {
+      "path": "src/services/statsV1.ts",
+      "sha256": "9f65e6de6e71e7ffb0e1c39da824a04c3e298f5cd7117dd210420e0014e37347"
+    },
+    {
+      "path": "src/services/teamV1.ts",
+      "sha256": "ce0b114fa00d52152c8d8da98e212fa74240395902559f16501c4f68a1bfeaa1"
+    },
+    {
+      "path": "src/services/userService.ts",
+      "sha256": "3cfe4615162298386a6e08d27c01f3764375b7318beedcccfe31ad6dbf168b71"
+    },
+    {
+      "path": "src/services/userStatusWatcher.ts",
+      "sha256": "7ba559dc107877b70347d8f5eb7d7dea3ccc3143ad2cca70de57dd5b943b964d"
+    },
+    {
+      "path": "src/services/userV1.ts",
+      "sha256": "909c94039a25fc73b4d50c5a4c218148c84fc43e438f774cf2f2d2f78e7d6df3"
+    },
+    {
+      "path": "src/services/utf8.ts",
+      "sha256": "1666149991846e340fdbde34c6f22a5a143a8457a5bdd74f2b26264012c8c136"
+    }
+  ]
+}

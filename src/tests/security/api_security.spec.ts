@@ -1,13 +1,14 @@
+import { legacyCall } from '@/services/legacyCloudClient';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // 模拟 wx.cloud
 const mockCallFunction = vi.fn();
-global.wx = {
+vi.stubGlobal('wx', {
   cloud: {
     callFunction: mockCallFunction,
   },
-} as any;
+});
 
 describe('Security: Interface Permission Checks', () => {
   beforeEach(() => {
@@ -30,7 +31,7 @@ describe('Security: Interface Permission Checks', () => {
 
     // 2. 前端发起调用 (模拟攻击者或未授权操作)
     // 这里我们直接调用云函数，模拟绕过前端校验直接调接口
-    const response = await wx.cloud.callFunction({
+    const response = await legacyCall<null>({
       name: 'demandService',
       data: {
         action: 'create',
@@ -62,7 +63,7 @@ describe('Security: Interface Permission Checks', () => {
     });
 
     // 2. 模拟农户尝试调用审核接口
-    const response = await wx.cloud.callFunction({
+    const response = await legacyCall<null>({
       name: 'userService',
       data: {
         action: 'auditUser',

@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "queued": {
+      "const": true
+    }
+  },
+  "required": [
+    "queued"
+  ],
+  "additionalProperties": false
+}

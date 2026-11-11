@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "team_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "team_id"
+  ],
+  "additionalProperties": false
+}

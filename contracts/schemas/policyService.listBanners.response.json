@@ -1,0 +1,86 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "banner_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "policy_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "cover_file_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "sort_order": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "starts_at": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "ends_at": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "enabled": {
+        "type": "boolean"
+      },
+      "version": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "cover_url": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "policy_title": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 200
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "required": [
+      "banner_id",
+      "policy_id",
+      "cover_file_id",
+      "sort_order",
+      "starts_at",
+      "ends_at",
+      "enabled",
+      "version",
+      "cover_url",
+      "policy_title"
+    ],
+    "additionalProperties": false
+  },
+  "maxItems": 50,
+  "minItems": 0,
+  "uniqueItems": true
+}

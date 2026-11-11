@@ -1,3 +1,5 @@
+import { getCloudEnvId } from '@/utils/cloud-init';
+import { legacyCall } from '@/services/legacyCloudClient';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
@@ -36,13 +38,12 @@ export interface ApiResponse<T> {
   data: T | null;
 }
 
-const CLOUD_ENV = 'test-yzxz-0g1jgylp46818d68';
+const CLOUD_ENV = getCloudEnvId();
 const TOKEN_KEY = 'user_token';
 const USER_INFO_KEY = 'user_info';
 const TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 
 interface TokenData {
-  token: string;
   expiresAt: number;
   lastActiveTime: number;
 }
@@ -63,9 +64,7 @@ export const useUserStore = defineStore('user', () => {
       const tokenData = uni.getStorageSync(TOKEN_KEY);
       if (!tokenData) return true;
 
-      const parsed: TokenData = typeof tokenData === 'string'
-        ? JSON.parse(tokenData)
-        : tokenData;
+      const parsed: TokenData = typeof tokenData === 'string' ? JSON.parse(tokenData) : tokenData;
 
       return Date.now() > parsed.expiresAt;
     } catch {
@@ -81,9 +80,7 @@ export const useUserStore = defineStore('user', () => {
       const tokenData = uni.getStorageSync(TOKEN_KEY);
       if (!tokenData) return 999;
 
-      const parsed: TokenData = typeof tokenData === 'string'
-        ? JSON.parse(tokenData)
-        : tokenData;
+      const parsed: TokenData = typeof tokenData === 'string' ? JSON.parse(tokenData) : tokenData;
 
       return Math.floor((Date.now() - parsed.lastActiveTime) / (1000 * 60 * 60 * 24));
     } catch {
@@ -92,18 +89,10 @@ export const useUserStore = defineStore('user', () => {
   };
 
   /**
-   * Generate a simple token
-   */
-  const generateToken = (): string => {
-    return `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-  };
-
-  /**
    * Save session with expiry based on last active time
    */
   const saveSession = (): void => {
     const tokenData: TokenData = {
-      token: generateToken(),
       expiresAt: Date.now() + TOKEN_EXPIRY,
       lastActiveTime: Date.now(),
     };
@@ -117,9 +106,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       const tokenData = uni.getStorageSync(TOKEN_KEY);
       if (tokenData) {
-        const parsed: TokenData = typeof tokenData === 'string'
-          ? JSON.parse(tokenData)
-          : tokenData;
+        const parsed: TokenData = typeof tokenData === 'string' ? JSON.parse(tokenData) : tokenData;
         parsed.lastActiveTime = Date.now();
         uni.setStorageSync(TOKEN_KEY, JSON.stringify(parsed));
       }
@@ -184,12 +171,10 @@ export const useUserStore = defineStore('user', () => {
     try {
       console.log('[UserStore] Initiating login with env:', CLOUD_ENV);
 
-      const { result } = await wx.cloud.callFunction({
+      const { result } = await legacyCall<UserInfo>({
         name: 'login',
         config: { env: CLOUD_ENV },
       });
-
-      console.log('[UserStore] Login result:', result);
 
       if (!result) {
         throw new Error('No result returned from cloud function');
@@ -250,13 +235,11 @@ export const useUserStore = defineStore('user', () => {
         throw new Error('请填写完整信息');
       }
 
-      const { result } = await wx.cloud.callFunction({
+      const { result } = await legacyCall<UserInfo>({
         name: 'register',
         data: formData,
         config: { env: CLOUD_ENV },
       });
-
-      console.log('[UserStore] Register result:', result);
 
       if (result.code === 0) {
         const userData = result.data as UserInfo;
@@ -288,7 +271,7 @@ export const useUserStore = defineStore('user', () => {
         throw new Error('User not logged in');
       }
 
-      const { result } = await wx.cloud.callFunction({
+      const { result } = await legacyCall<null>({
         name: 'userService',
         data: {
           action: 'updateAvatar',
@@ -326,7 +309,7 @@ export const useUserStore = defineStore('user', () => {
         throw new Error('User not logged in');
       }
 
-      const { result } = await wx.cloud.callFunction({
+      const { result } = await legacyCall<null>({
         name: 'userService',
         data: {
           action: 'updateProfile',
@@ -367,7 +350,11 @@ export const useUserStore = defineStore('user', () => {
         throw new Error('User not logged in');
       }
 
-      const { result } = await wx.cloud.callFunction({
+      const { result } = await legacyCall<{
+        published: number;
+        processing: number;
+        completed: number;
+      }>({
         name: 'demandService',
         data: {
           action: 'getUserStats',
@@ -444,7 +431,7 @@ export const useUserStore = defineStore('user', () => {
         throw new Error('无权切换到该角色');
       }
 
-      const { result } = await wx.cloud.callFunction({
+      const { result } = await legacyCall<UserInfo>({
         name: 'userService',
         data: {
           action: 'switchRole',
@@ -488,7 +475,7 @@ export const useUserStore = defineStore('user', () => {
       const oldRole = role.value;
       const oldStatus = status.value;
 
-      const { result } = await wx.cloud.callFunction({
+      const { result } = await legacyCall<UserInfo>({
         name: 'login',
         config: { env: CLOUD_ENV },
       });
@@ -514,7 +501,7 @@ export const useUserStore = defineStore('user', () => {
             oldRole,
             newRole: userData.role,
             oldStatus,
-            newStatus: userData.status
+            newStatus: userData.status,
           });
         } else {
           console.info('[UserStore] User info refreshed (no changes):', userData._id);
@@ -534,7 +521,7 @@ export const useUserStore = defineStore('user', () => {
    */
   const initAdminRoles = async (): Promise<boolean> => {
     try {
-      const { result } = await wx.cloud.callFunction({
+      const { result } = await legacyCall<UserInfo>({
         name: 'userService',
         data: {
           action: 'initUserRoles',

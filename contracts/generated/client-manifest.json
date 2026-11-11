@@ -1,0 +1,1372 @@
+{
+  "userService.bootstrap": {
+    "function": "userService",
+    "action": "bootstrap",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.bootstrap.request.json",
+    "response_schema": "userService.bootstrap.response.json"
+  },
+  "userService.getReadiness": {
+    "function": "userService",
+    "action": "getReadiness",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "userService.getReadiness.request.json",
+    "response_schema": "userService.getReadiness.response.json"
+  },
+  "userService.getMe": {
+    "function": "userService",
+    "action": "getMe",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "userService.getMe.request.json",
+    "response_schema": "userService.getMe.response.json"
+  },
+  "userService.updateProfile": {
+    "function": "userService",
+    "action": "updateProfile",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.updateProfile.request.json",
+    "response_schema": "userService.updateProfile.response.json"
+  },
+  "userService.listRegions": {
+    "function": "userService",
+    "action": "listRegions",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "userService.listRegions.request.json",
+    "response_schema": "userService.listRegions.response.json"
+  },
+  "userService.applyRole": {
+    "function": "userService",
+    "action": "applyRole",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.applyRole.request.json",
+    "response_schema": "userService.applyRole.response.json"
+  },
+  "userService.applyRenewal": {
+    "function": "userService",
+    "action": "applyRenewal",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.applyRenewal.request.json",
+    "response_schema": "userService.applyRenewal.response.json"
+  },
+  "userService.listMyApplications": {
+    "function": "userService",
+    "action": "listMyApplications",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "userService.listMyApplications.request.json",
+    "response_schema": "userService.listMyApplications.response.json"
+  },
+  "userService.getApplication": {
+    "function": "userService",
+    "action": "getApplication",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "userService.getApplication.request.json",
+    "response_schema": "userService.getApplication.response.json"
+  },
+  "userService.getMyContact": {
+    "function": "userService",
+    "action": "getMyContact",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "userService.getMyContact.request.json",
+    "response_schema": "userService.getMyContact.response.json"
+  },
+  "userService.listPendingApplications": {
+    "function": "userService",
+    "action": "listPendingApplications",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "userService.listPendingApplications.request.json",
+    "response_schema": "userService.listPendingApplications.response.json"
+  },
+  "userService.withdrawApplication": {
+    "function": "userService",
+    "action": "withdrawApplication",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.withdrawApplication.request.json",
+    "response_schema": "userService.withdrawApplication.response.json"
+  },
+  "userService.reviewRoleApplication": {
+    "function": "userService",
+    "action": "reviewRoleApplication",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.reviewRoleApplication.request.json",
+    "response_schema": "userService.reviewRoleApplication.response.json"
+  },
+  "userService.listGrants": {
+    "function": "userService",
+    "action": "listGrants",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "userService.listGrants.request.json",
+    "response_schema": "userService.listGrants.response.json"
+  },
+  "userService.requestDelegation": {
+    "function": "userService",
+    "action": "requestDelegation",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.requestDelegation.request.json",
+    "response_schema": "userService.requestDelegation.response.json"
+  },
+  "userService.getDelegation": {
+    "function": "userService",
+    "action": "getDelegation",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "userService.getDelegation.request.json",
+    "response_schema": "userService.getDelegation.response.json"
+  },
+  "userService.listMyDelegations": {
+    "function": "userService",
+    "action": "listMyDelegations",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "userService.listMyDelegations.request.json",
+    "response_schema": "userService.listMyDelegations.response.json"
+  },
+  "userService.respondDelegation": {
+    "function": "userService",
+    "action": "respondDelegation",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.respondDelegation.request.json",
+    "response_schema": "userService.respondDelegation.response.json"
+  },
+  "userService.revokeDelegation": {
+    "function": "userService",
+    "action": "revokeDelegation",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.revokeDelegation.request.json",
+    "response_schema": "userService.revokeDelegation.response.json"
+  },
+  "userService.revokeGrant": {
+    "function": "userService",
+    "action": "revokeGrant",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.revokeGrant.request.json",
+    "response_schema": "userService.revokeGrant.response.json"
+  },
+  "userService.grantManagementRole": {
+    "function": "userService",
+    "action": "grantManagementRole",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "userService.grantManagementRole.request.json",
+    "response_schema": "userService.grantManagementRole.response.json"
+  },
+  "demandService.getFormSchema": {
+    "function": "demandService",
+    "action": "getFormSchema",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "demandService.getFormSchema.request.json",
+    "response_schema": "demandService.getFormSchema.response.json"
+  },
+  "demandService.listPublic": {
+    "function": "demandService",
+    "action": "listPublic",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "demandService.listPublic.request.json",
+    "response_schema": "demandService.listPublic.response.json"
+  },
+  "demandService.getDetail": {
+    "function": "demandService",
+    "action": "getDetail",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "demandService.getDetail.request.json",
+    "response_schema": "demandService.getDetail.response.json"
+  },
+  "demandService.saveDraft": {
+    "function": "demandService",
+    "action": "saveDraft",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.saveDraft.request.json",
+    "response_schema": "demandService.saveDraft.response.json"
+  },
+  "demandService.getContact": {
+    "function": "demandService",
+    "action": "getContact",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "demandService.getContact.request.json",
+    "response_schema": "demandService.getContact.response.json"
+  },
+  "demandService.getServiceLocation": {
+    "function": "demandService",
+    "action": "getServiceLocation",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "demandService.getServiceLocation.request.json",
+    "response_schema": "demandService.getServiceLocation.response.json"
+  },
+  "demandService.listEvents": {
+    "function": "demandService",
+    "action": "listEvents",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "demandService.listEvents.request.json",
+    "response_schema": "demandService.listEvents.response.json"
+  },
+  "demandService.createAndSubmit": {
+    "function": "demandService",
+    "action": "createAndSubmit",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.createAndSubmit.request.json",
+    "response_schema": "demandService.createAndSubmit.response.json"
+  },
+  "demandService.createDelegatedDemand": {
+    "function": "demandService",
+    "action": "createDelegatedDemand",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.createDelegatedDemand.request.json",
+    "response_schema": "demandService.createDelegatedDemand.response.json"
+  },
+  "demandService.requestRosterChange": {
+    "function": "demandService",
+    "action": "requestRosterChange",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.requestRosterChange.request.json",
+    "response_schema": "demandService.requestRosterChange.response.json"
+  },
+  "demandService.reviewRosterChange": {
+    "function": "demandService",
+    "action": "reviewRosterChange",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.reviewRosterChange.request.json",
+    "response_schema": "demandService.reviewRosterChange.response.json"
+  },
+  "demandService.submit": {
+    "function": "demandService",
+    "action": "submit",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.submit.request.json",
+    "response_schema": "demandService.submit.response.json"
+  },
+  "demandService.reopenRejected": {
+    "function": "demandService",
+    "action": "reopenRejected",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.reopenRejected.request.json",
+    "response_schema": "demandService.reopenRejected.response.json"
+  },
+  "demandService.withdrawSubmission": {
+    "function": "demandService",
+    "action": "withdrawSubmission",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.withdrawSubmission.request.json",
+    "response_schema": "demandService.withdrawSubmission.response.json"
+  },
+  "demandService.review": {
+    "function": "demandService",
+    "action": "review",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.review.request.json",
+    "response_schema": "demandService.review.response.json"
+  },
+  "demandService.cancel": {
+    "function": "demandService",
+    "action": "cancel",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.cancel.request.json",
+    "response_schema": "demandService.cancel.response.json"
+  },
+  "demandService.hide": {
+    "function": "demandService",
+    "action": "hide",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.hide.request.json",
+    "response_schema": "demandService.hide.response.json"
+  },
+  "demandService.restoreVisibility": {
+    "function": "demandService",
+    "action": "restoreVisibility",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.restoreVisibility.request.json",
+    "response_schema": "demandService.restoreVisibility.response.json"
+  },
+  "demandService.editAndResubmit": {
+    "function": "demandService",
+    "action": "editAndResubmit",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.editAndResubmit.request.json",
+    "response_schema": "demandService.editAndResubmit.response.json"
+  },
+  "demandService.cloneDemand": {
+    "function": "demandService",
+    "action": "cloneDemand",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.cloneDemand.request.json",
+    "response_schema": "demandService.cloneDemand.response.json"
+  },
+  "demandService.updateDraft": {
+    "function": "demandService",
+    "action": "updateDraft",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.updateDraft.request.json",
+    "response_schema": "demandService.updateDraft.response.json"
+  },
+  "demandService.listMine": {
+    "function": "demandService",
+    "action": "listMine",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "demandService.listMine.request.json",
+    "response_schema": "demandService.listMine.response.json"
+  },
+  "demandService.listCreatedByMe": {
+    "function": "demandService",
+    "action": "listCreatedByMe",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "demandService.listCreatedByMe.request.json",
+    "response_schema": "demandService.listCreatedByMe.response.json"
+  },
+  "demandService.listClaimed": {
+    "function": "demandService",
+    "action": "listClaimed",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "demandService.listClaimed.request.json",
+    "response_schema": "demandService.listClaimed.response.json"
+  },
+  "demandService.listPendingAudit": {
+    "function": "demandService",
+    "action": "listPendingAudit",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "demandService.listPendingAudit.request.json",
+    "response_schema": "demandService.listPendingAudit.response.json"
+  },
+  "demandService.listManaged": {
+    "function": "demandService",
+    "action": "listManaged",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "demandService.listManaged.request.json",
+    "response_schema": "demandService.listManaged.response.json"
+  },
+  "demandService.requestTermination": {
+    "function": "demandService",
+    "action": "requestTermination",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.requestTermination.request.json",
+    "response_schema": "demandService.requestTermination.response.json"
+  },
+  "demandService.respondTermination": {
+    "function": "demandService",
+    "action": "respondTermination",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.respondTermination.request.json",
+    "response_schema": "demandService.respondTermination.response.json"
+  },
+  "demandService.withdrawTermination": {
+    "function": "demandService",
+    "action": "withdrawTermination",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.withdrawTermination.request.json",
+    "response_schema": "demandService.withdrawTermination.response.json"
+  },
+  "demandService.disputeTermination": {
+    "function": "demandService",
+    "action": "disputeTermination",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.disputeTermination.request.json",
+    "response_schema": "demandService.disputeTermination.response.json"
+  },
+  "demandService.resolveTermination": {
+    "function": "demandService",
+    "action": "resolveTermination",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.resolveTermination.request.json",
+    "response_schema": "demandService.resolveTermination.response.json"
+  },
+  "demandService.claim": {
+    "function": "demandService",
+    "action": "claim",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.claim.request.json",
+    "response_schema": "demandService.claim.response.json"
+  },
+  "demandService.confirmClaim": {
+    "function": "demandService",
+    "action": "confirmClaim",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.confirmClaim.request.json",
+    "response_schema": "demandService.confirmClaim.response.json"
+  },
+  "demandService.withdrawClaim": {
+    "function": "demandService",
+    "action": "withdrawClaim",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.withdrawClaim.request.json",
+    "response_schema": "demandService.withdrawClaim.response.json"
+  },
+  "demandService.addProgress": {
+    "function": "demandService",
+    "action": "addProgress",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.addProgress.request.json",
+    "response_schema": "demandService.addProgress.response.json"
+  },
+  "demandService.submitCompletion": {
+    "function": "demandService",
+    "action": "submitCompletion",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.submitCompletion.request.json",
+    "response_schema": "demandService.submitCompletion.response.json"
+  },
+  "demandService.reviewCompletion": {
+    "function": "demandService",
+    "action": "reviewCompletion",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.reviewCompletion.request.json",
+    "response_schema": "demandService.reviewCompletion.response.json"
+  },
+  "demandService.checkSubmission": {
+    "function": "demandService",
+    "action": "checkSubmission",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "demandService.checkSubmission.request.json",
+    "response_schema": "demandService.checkSubmission.response.json"
+  },
+  "teamService.createTeam": {
+    "function": "teamService",
+    "action": "createTeam",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "teamService.createTeam.request.json",
+    "response_schema": "teamService.createTeam.response.json"
+  },
+  "teamService.getTeam": {
+    "function": "teamService",
+    "action": "getTeam",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "teamService.getTeam.request.json",
+    "response_schema": "teamService.getTeam.response.json"
+  },
+  "teamService.listMyTeams": {
+    "function": "teamService",
+    "action": "listMyTeams",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "teamService.listMyTeams.request.json",
+    "response_schema": "teamService.listMyTeams.response.json"
+  },
+  "teamService.inviteMember": {
+    "function": "teamService",
+    "action": "inviteMember",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "teamService.inviteMember.request.json",
+    "response_schema": "teamService.inviteMember.response.json"
+  },
+  "teamService.listMyInvitations": {
+    "function": "teamService",
+    "action": "listMyInvitations",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "teamService.listMyInvitations.request.json",
+    "response_schema": "teamService.listMyInvitations.response.json"
+  },
+  "teamService.respondInvitation": {
+    "function": "teamService",
+    "action": "respondInvitation",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "teamService.respondInvitation.request.json",
+    "response_schema": "teamService.respondInvitation.response.json"
+  },
+  "teamService.listMembers": {
+    "function": "teamService",
+    "action": "listMembers",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "teamService.listMembers.request.json",
+    "response_schema": "teamService.listMembers.response.json"
+  },
+  "teamService.leaveTeam": {
+    "function": "teamService",
+    "action": "leaveTeam",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "teamService.leaveTeam.request.json",
+    "response_schema": "teamService.leaveTeam.response.json"
+  },
+  "teamService.transferLeadership": {
+    "function": "teamService",
+    "action": "transferLeadership",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "teamService.transferLeadership.request.json",
+    "response_schema": "teamService.transferLeadership.response.json"
+  },
+  "teamService.acceptLeadership": {
+    "function": "teamService",
+    "action": "acceptLeadership",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "teamService.acceptLeadership.request.json",
+    "response_schema": "teamService.acceptLeadership.response.json"
+  },
+  "teamService.dissolveTeam": {
+    "function": "teamService",
+    "action": "dissolveTeam",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "teamService.dissolveTeam.request.json",
+    "response_schema": "teamService.dissolveTeam.response.json"
+  },
+  "notificationService.listMine": {
+    "function": "notificationService",
+    "action": "listMine",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "notificationService.listMine.request.json",
+    "response_schema": "notificationService.listMine.response.json"
+  },
+  "notificationService.unreadCount": {
+    "function": "notificationService",
+    "action": "unreadCount",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "notificationService.unreadCount.request.json",
+    "response_schema": "notificationService.unreadCount.response.json"
+  },
+  "notificationService.markRead": {
+    "function": "notificationService",
+    "action": "markRead",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "notificationService.markRead.request.json",
+    "response_schema": "notificationService.markRead.response.json"
+  },
+  "notificationService.recordSubscription": {
+    "function": "notificationService",
+    "action": "recordSubscription",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "notificationService.recordSubscription.request.json",
+    "response_schema": "notificationService.recordSubscription.response.json"
+  },
+  "notificationService.getSubscriptionOptions": {
+    "function": "notificationService",
+    "action": "getSubscriptionOptions",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "notificationService.getSubscriptionOptions.request.json",
+    "response_schema": "notificationService.getSubscriptionOptions.response.json"
+  },
+  "fileService.prepareUpload": {
+    "function": "fileService",
+    "action": "prepareUpload",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "fileService.prepareUpload.request.json",
+    "response_schema": "fileService.prepareUpload.response.json"
+  },
+  "fileService.getUploadTicket": {
+    "function": "fileService",
+    "action": "getUploadTicket",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "fileService.getUploadTicket.request.json",
+    "response_schema": "fileService.getUploadTicket.response.json"
+  },
+  "fileService.finalizeUpload": {
+    "function": "fileService",
+    "action": "finalizeUpload",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "fileService.finalizeUpload.request.json",
+    "response_schema": "fileService.finalizeUpload.response.json"
+  },
+  "fileService.getAccessUrl": {
+    "function": "fileService",
+    "action": "getAccessUrl",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "fileService.getAccessUrl.request.json",
+    "response_schema": "fileService.getAccessUrl.response.json"
+  },
+  "fileService.deleteUnbound": {
+    "function": "fileService",
+    "action": "deleteUnbound",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "fileService.deleteUnbound.request.json",
+    "response_schema": "fileService.deleteUnbound.response.json"
+  },
+  "policyService.listPublished": {
+    "function": "policyService",
+    "action": "listPublished",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "policyService.listPublished.request.json",
+    "response_schema": "policyService.listPublished.response.json"
+  },
+  "policyService.getDetail": {
+    "function": "policyService",
+    "action": "getDetail",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "policyService.getDetail.request.json",
+    "response_schema": "policyService.getDetail.response.json"
+  },
+  "policyService.listDrafts": {
+    "function": "policyService",
+    "action": "listDrafts",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "policyService.listDrafts.request.json",
+    "response_schema": "policyService.listDrafts.response.json"
+  },
+  "policyService.listManage": {
+    "function": "policyService",
+    "action": "listManage",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "policyService.listManage.request.json",
+    "response_schema": "policyService.listManage.response.json"
+  },
+  "policyService.getManageDetail": {
+    "function": "policyService",
+    "action": "getManageDetail",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "policyService.getManageDetail.request.json",
+    "response_schema": "policyService.getManageDetail.response.json"
+  },
+  "policyService.saveDraft": {
+    "function": "policyService",
+    "action": "saveDraft",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "policyService.saveDraft.request.json",
+    "response_schema": "policyService.saveDraft.response.json"
+  },
+  "policyService.publish": {
+    "function": "policyService",
+    "action": "publish",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "policyService.publish.request.json",
+    "response_schema": "policyService.publish.response.json"
+  },
+  "policyService.unpublish": {
+    "function": "policyService",
+    "action": "unpublish",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "policyService.unpublish.request.json",
+    "response_schema": "policyService.unpublish.response.json"
+  },
+  "policyService.listManageBanners": {
+    "function": "policyService",
+    "action": "listManageBanners",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "policyService.listManageBanners.request.json",
+    "response_schema": "policyService.listManageBanners.response.json"
+  },
+  "policyService.setBannerEnabled": {
+    "function": "policyService",
+    "action": "setBannerEnabled",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "policyService.setBannerEnabled.request.json",
+    "response_schema": "policyService.setBannerEnabled.response.json"
+  },
+  "policyService.saveBanner": {
+    "function": "policyService",
+    "action": "saveBanner",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "policyService.saveBanner.request.json",
+    "response_schema": "policyService.saveBanner.response.json"
+  },
+  "policyService.listBanners": {
+    "function": "policyService",
+    "action": "listBanners",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "policyService.listBanners.request.json",
+    "response_schema": "policyService.listBanners.response.json"
+  },
+  "contactService.listContacts": {
+    "function": "contactService",
+    "action": "listContacts",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "contactService.listContacts.request.json",
+    "response_schema": "contactService.listContacts.response.json"
+  },
+  "chatService.createDemandConversation": {
+    "function": "chatService",
+    "action": "createDemandConversation",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "chatService.createDemandConversation.request.json",
+    "response_schema": "chatService.createDemandConversation.response.json"
+  },
+  "chatService.listMine": {
+    "function": "chatService",
+    "action": "listMine",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "chatService.listMine.request.json",
+    "response_schema": "chatService.listMine.response.json"
+  },
+  "chatService.getMessages": {
+    "function": "chatService",
+    "action": "getMessages",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "chatService.getMessages.request.json",
+    "response_schema": "chatService.getMessages.response.json"
+  },
+  "chatService.sendMessage": {
+    "function": "chatService",
+    "action": "sendMessage",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "chatService.sendMessage.request.json",
+    "response_schema": "chatService.sendMessage.response.json"
+  },
+  "chatService.markRead": {
+    "function": "chatService",
+    "action": "markRead",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "chatService.markRead.request.json",
+    "response_schema": "chatService.markRead.response.json"
+  },
+  "statsService.getOverview": {
+    "function": "statsService",
+    "action": "getOverview",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "statsService.getOverview.request.json",
+    "response_schema": "statsService.getOverview.response.json"
+  },
+  "statsService.getTrend": {
+    "function": "statsService",
+    "action": "getTrend",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "statsService.getTrend.request.json",
+    "response_schema": "statsService.getTrend.response.json"
+  },
+  "statsService.getCategoryBreakdown": {
+    "function": "statsService",
+    "action": "getCategoryBreakdown",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "statsService.getCategoryBreakdown.request.json",
+    "response_schema": "statsService.getCategoryBreakdown.response.json"
+  },
+  "statsService.createExport": {
+    "function": "statsService",
+    "action": "createExport",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "statsService.createExport.request.json",
+    "response_schema": "statsService.createExport.response.json"
+  },
+  "statsService.getExport": {
+    "function": "statsService",
+    "action": "getExport",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "statsService.getExport.request.json",
+    "response_schema": "statsService.getExport.response.json"
+  },
+  "knowledgeService.search": {
+    "function": "knowledgeService",
+    "action": "search",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "knowledgeService.search.request.json",
+    "response_schema": "knowledgeService.search.response.json"
+  },
+  "knowledgeService.getDocument": {
+    "function": "knowledgeService",
+    "action": "getDocument",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "knowledgeService.getDocument.request.json",
+    "response_schema": "knowledgeService.getDocument.response.json"
+  },
+  "knowledgeService.saveDraft": {
+    "function": "knowledgeService",
+    "action": "saveDraft",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "knowledgeService.saveDraft.request.json",
+    "response_schema": "knowledgeService.saveDraft.response.json"
+  },
+  "knowledgeService.importDraft": {
+    "function": "knowledgeService",
+    "action": "importDraft",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "knowledgeService.importDraft.request.json",
+    "response_schema": "knowledgeService.importDraft.response.json"
+  },
+  "knowledgeService.publish": {
+    "function": "knowledgeService",
+    "action": "publish",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "knowledgeService.publish.request.json",
+    "response_schema": "knowledgeService.publish.response.json"
+  },
+  "knowledgeService.unpublish": {
+    "function": "knowledgeService",
+    "action": "unpublish",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "knowledgeService.unpublish.request.json",
+    "response_schema": "knowledgeService.unpublish.response.json"
+  },
+  "maintenanceService.createHold": {
+    "function": "maintenanceService",
+    "action": "createHold",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "maintenanceService.createHold.request.json",
+    "response_schema": "maintenanceService.createHold.response.json"
+  },
+  "maintenanceService.releaseHold": {
+    "function": "maintenanceService",
+    "action": "releaseHold",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "maintenanceService.releaseHold.request.json",
+    "response_schema": "maintenanceService.releaseHold.response.json"
+  },
+  "maintenanceService.listHolds": {
+    "function": "maintenanceService",
+    "action": "listHolds",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "maintenanceService.listHolds.request.json",
+    "response_schema": "maintenanceService.listHolds.response.json"
+  },
+  "maintenanceService.listDeadLetters": {
+    "function": "maintenanceService",
+    "action": "listDeadLetters",
+    "mode": "RG",
+    "grant": true,
+    "write": false,
+    "public": false,
+    "request_schema": "maintenanceService.listDeadLetters.request.json",
+    "response_schema": "maintenanceService.listDeadLetters.response.json"
+  },
+  "maintenanceService.retryDeadLetter": {
+    "function": "maintenanceService",
+    "action": "retryDeadLetter",
+    "mode": "WG",
+    "grant": true,
+    "write": true,
+    "public": false,
+    "request_schema": "maintenanceService.retryDeadLetter.request.json",
+    "response_schema": "maintenanceService.retryDeadLetter.response.json"
+  },
+  "aiService.getExamples": {
+    "function": "aiService",
+    "action": "getExamples",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "aiService.getExamples.request.json",
+    "response_schema": "aiService.getExamples.response.json"
+  },
+  "aiService.createSession": {
+    "function": "aiService",
+    "action": "createSession",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "aiService.createSession.request.json",
+    "response_schema": "aiService.createSession.response.json"
+  },
+  "aiService.listSessions": {
+    "function": "aiService",
+    "action": "listSessions",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "aiService.listSessions.request.json",
+    "response_schema": "aiService.listSessions.response.json"
+  },
+  "aiService.listMessages": {
+    "function": "aiService",
+    "action": "listMessages",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "aiService.listMessages.request.json",
+    "response_schema": "aiService.listMessages.response.json"
+  },
+  "aiService.sendMessage": {
+    "function": "aiService",
+    "action": "sendMessage",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "aiService.sendMessage.request.json",
+    "response_schema": "aiService.sendMessage.response.json"
+  },
+  "aiService.getJob": {
+    "function": "aiService",
+    "action": "getJob",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "aiService.getJob.request.json",
+    "response_schema": "aiService.getJob.response.json"
+  },
+  "aiService.getQuota": {
+    "function": "aiService",
+    "action": "getQuota",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "aiService.getQuota.request.json",
+    "response_schema": "aiService.getQuota.response.json"
+  },
+  "aiService.deleteSession": {
+    "function": "aiService",
+    "action": "deleteSession",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "aiService.deleteSession.request.json",
+    "response_schema": "aiService.deleteSession.response.json"
+  },
+  "aiService.getProposal": {
+    "function": "aiService",
+    "action": "getProposal",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "aiService.getProposal.request.json",
+    "response_schema": "aiService.getProposal.response.json"
+  },
+  "aiService.getOperation": {
+    "function": "aiService",
+    "action": "getOperation",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": false,
+    "request_schema": "aiService.getOperation.request.json",
+    "response_schema": "aiService.getOperation.response.json"
+  },
+  "aiService.cancelPendingIntent": {
+    "function": "aiService",
+    "action": "cancelPendingIntent",
+    "mode": "W",
+    "grant": false,
+    "write": true,
+    "public": false,
+    "request_schema": "aiService.cancelPendingIntent.request.json",
+    "response_schema": "aiService.cancelPendingIntent.response.json"
+  },
+  "userService.getRelease": {
+    "function": "userService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "userService.getRelease.request.json",
+    "response_schema": "userService.getRelease.response.json"
+  },
+  "demandService.getRelease": {
+    "function": "demandService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "demandService.getRelease.request.json",
+    "response_schema": "demandService.getRelease.response.json"
+  },
+  "teamService.getRelease": {
+    "function": "teamService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "teamService.getRelease.request.json",
+    "response_schema": "teamService.getRelease.response.json"
+  },
+  "fileService.getRelease": {
+    "function": "fileService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "fileService.getRelease.request.json",
+    "response_schema": "fileService.getRelease.response.json"
+  },
+  "policyService.getRelease": {
+    "function": "policyService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "policyService.getRelease.request.json",
+    "response_schema": "policyService.getRelease.response.json"
+  },
+  "notificationService.getRelease": {
+    "function": "notificationService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "notificationService.getRelease.request.json",
+    "response_schema": "notificationService.getRelease.response.json"
+  },
+  "chatService.getRelease": {
+    "function": "chatService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "chatService.getRelease.request.json",
+    "response_schema": "chatService.getRelease.response.json"
+  },
+  "contactService.getRelease": {
+    "function": "contactService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "contactService.getRelease.request.json",
+    "response_schema": "contactService.getRelease.response.json"
+  },
+  "statsService.getRelease": {
+    "function": "statsService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "statsService.getRelease.request.json",
+    "response_schema": "statsService.getRelease.response.json"
+  },
+  "knowledgeService.getRelease": {
+    "function": "knowledgeService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "knowledgeService.getRelease.request.json",
+    "response_schema": "knowledgeService.getRelease.response.json"
+  },
+  "aiService.getRelease": {
+    "function": "aiService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "aiService.getRelease.request.json",
+    "response_schema": "aiService.getRelease.response.json"
+  },
+  "maintenanceService.getRelease": {
+    "function": "maintenanceService",
+    "action": "getRelease",
+    "mode": "R",
+    "grant": false,
+    "write": false,
+    "public": true,
+    "request_schema": "maintenanceService.getRelease.request.json",
+    "response_schema": "maintenanceService.getRelease.response.json"
+  }
+}

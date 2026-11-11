@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "authorization_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "authorization_id"
+  ],
+  "additionalProperties": false
+}

@@ -1,260 +1,170 @@
 <template>
-  <view class="container">
-    <!-- 权限提示 -->
-    <view v-if="!hasPermission" class="no-permission-state">
-      <text class="title">暂无权限</text>
-      <text class="desc">您当前没有聊天权限，请前往个人中心认证</text>
-      <button class="auth-btn" @click="goToUserCenter">去认证</button>
+  <PageShell>
+    <text class="heading">消息</text>
+    <text class="page-description">围绕真实需求，一对一沟通协作。</text>
+    <view class="message-shortcuts">
+      <NavRow
+        title="系统通知"
+        description="审核结果、对接与任务提醒"
+        symbol="信"
+        tone="blue"
+        @activate="go('/pages/notifications/notifications')"
+      />
+      <NavRow
+        title="业务联系人"
+        description="查看与你有业务联系的伙伴"
+        symbol="联"
+        @activate="go('/pages/chat/contacts')"
+      />
     </view>
-
-    <block v-else>
-      <!-- 会话列表 -->
-      <view v-if="conversationList.length === 0 && !loading" class="empty-state">
-        <text>暂无消息</text>
-      </view>
-
-      <view
-        v-for="item in conversationList"
-        :key="item._id"
-        class="conversation-item"
-        @click="goToChatDetail(item)"
+    <view class="section-heading conversation-heading"
+      ><text class="section-title">需求会话</text
+      ><button class="text-button" :disabled="busy" @click="load(false)">
+        {{ busy ? '加载中…' : '刷新' }}
+      </button></view
+    >
+    <view v-if="!session.me" class="empty-state"
+      ><text class="empty-title">登录后查看消息</text
+      ><text class="empty-description">需求咨询和业务通知会保存在这里。</text
+      ><button class="primary" @click="go('/pages/login/login')">微信登录</button></view
+    >
+    <view v-else class="conversation-list">
+      <button
+        v-for="item in items"
+        :key="item.conversation_id"
+        class="conversation-row"
+        @click="go('/pages/chat/chat-detail?id=' + encodeURIComponent(item.conversation_id))"
       >
-        <image
-          class="avatar"
-          :src="item.avatar || '/static/default-avatar.png'"
-          mode="aspectFill"
-        />
-        <view class="content">
-          <view class="top">
-            <text class="name">{{ item.name || '未知用户' }}</text>
-            <text class="time">{{ formatTime(item.updatedAt) }}</text>
-          </view>
-          <view class="bottom">
-            <text class="last-message">{{ item.lastMessage }}</text>
-            <view class="unread-badge" v-if="item.unreadCount > 0">{{ item.unreadCount }}</view>
-          </view>
-        </view>
-      </view>
-
-      <!-- 新建聊天按钮 -->
-      <view class="fab-btn" @click="goToContacts">
-        <text class="icon">+</text>
-      </view>
-    </block>
-  </view>
+        <view class="conversation-avatar">聊</view>
+        <view class="conversation-copy"
+          ><text class="conversation-name">{{ item.display_name }}</text
+          ><text class="conversation-demand">{{ item.demand_title }}</text
+          ><text v-if="!item.can_send" class="conversation-history"
+            >历史会话，当前不可发送</text
+          ></view
+        >
+        <view class="conversation-arrow" />
+      </button>
+      <view v-if="!busy && !items.length && !error" class="empty-state"
+        ><text class="empty-title">还没有需求会话</text
+        ><text class="empty-description"
+          >从需求详情发起咨询，<text class="empty-line">与发布者沟通具体安排。</text></text
+        ></view
+      >
+    </view>
+    <button v-if="cursor" :disabled="busy" @click="load(true)">更多会话</button>
+    <text class="error">{{ error }}</text>
+  </PageShell>
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { useUserStore } from '@/stores/user';
-
-const userStore = useUserStore();
-const conversationList = ref<any[]>([]);
-const loading = ref(false);
-const hasPermission = ref(true);
-
-onShow(() => {
-  if (!userStore.isLoggedIn) {
-    uni.switchTab({ url: '/pages/user/user' });
+import PageShell from '../../components/PageShell.vue';
+import NavRow from '../../components/NavRow.vue';
+import { useSessionStore } from '../../stores/session';
+import { listConversations, type ConversationSummary } from '../../services/chatV1';
+import { errorMessage } from '../../utils/display';
+const session = useSessionStore();
+const items = ref<ConversationSummary[]>([]);
+const cursor = ref<string | null>(null);
+const busy = ref(false);
+const error = ref('');
+const go = (url: string) => uni.navigateTo({ url });
+async function load(more = false) {
+  if (busy.value) return;
+  if (!session.me) {
+    items.value = [];
+    cursor.value = null;
     return;
   }
-  if (!userStore.canChat) {
-    hasPermission.value = false;
-    uni.showModal({
-      title: '权限提示',
-      content: '您当前没有聊天权限，无法使用此功能。请前往“我的”页面申请权限。',
-      confirmText: '去申请',
-      cancelText: '知道了',
-      success: (res) => {
-        if (res.confirm) {
-          uni.switchTab({ url: '/pages/user/user' });
-        }
-      },
-    });
-    return;
-  }
-
-  hasPermission.value = true;
-  loadConversations();
-});
-
-const goToUserCenter = () => {
-  uni.switchTab({ url: '/pages/user/user' });
-};
-
-const loadConversations = async () => {
-  loading.value = true;
+  busy.value = true;
   try {
-    const { result } = (await wx.cloud.callFunction({
-      name: 'chatService',
-      data: {
-        action: 'getConversations',
-      },
-    })) as any;
-
-    if (result.code === 0) {
-      conversationList.value = result.data || [];
-    }
+    const result = await listConversations(more ? cursor.value ?? undefined : undefined);
+    items.value = more ? [...items.value, ...result.items] : result.items;
+    cursor.value = result.next_cursor;
+    error.value = '';
   } catch (e) {
-    console.error('Load conversations error', e);
+    items.value = [];
+    cursor.value = null;
+    error.value = errorMessage(e);
   } finally {
-    loading.value = false;
+    busy.value = false;
   }
-};
-
-const formatTime = (timestamp: number) => {
-  if (!timestamp) return '';
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-
-  if (diff < 60000) return '刚刚';
-  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
-  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
-  return `${date.getMonth() + 1}-${date.getDate()}`;
-};
-
-const goToChatDetail = (item: any) => {
-  uni.navigateTo({
-    url: `/pages/chat/chat-detail?id=${item._id}&name=${item.name || '未知用户'}`,
-  });
-};
-
-const goToContacts = () => {
-  uni.navigateTo({
-    url: '/pages/chat/contacts',
-  });
-};
+}
+onShow(() => {
+  void load();
+});
 </script>
-
-<style lang="scss" scoped>
-.container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
+<style scoped>
+.message-shortcuts {
+  background: #fff;
+  padding: 0 26rpx;
+  border-radius: 24rpx;
+  margin: 32rpx 0 40rpx;
 }
-
-.empty-state {
-  padding: 100rpx;
-  text-align: center;
-  color: #999;
-  font-size: 28rpx;
+.conversation-heading {
+  margin-bottom: 20rpx;
 }
-
-.conversation-item {
-  background-color: #fff;
-  padding: 30rpx;
+.conversation-list {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 0 26rpx;
+}
+.conversation-row {
   display: flex;
   align-items: center;
-  border-bottom: 1rpx solid #f0f0f0;
-
-  .avatar {
-    width: 100rpx;
-    height: 100rpx;
-    border-radius: 50%;
-    margin-right: 20rpx;
-  }
-
-  .content {
-    flex: 1;
-
-    .top {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10rpx;
-
-      .name {
-        font-size: 32rpx;
-        font-weight: bold;
-      }
-
-      .time {
-        font-size: 24rpx;
-        color: #999;
-      }
-    }
-
-    .bottom {
-      display: flex;
-      justify-content: space-between;
-
-      .last-message {
-        font-size: 28rpx;
-        color: #666;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 400rpx;
-      }
-
-      .unread-badge {
-        background-color: #ff4d4f;
-        color: #fff;
-        font-size: 20rpx;
-        padding: 0 10rpx;
-        border-radius: 20rpx;
-        min-width: 30rpx;
-        text-align: center;
-      }
-    }
-  }
+  gap: 22rpx;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1rpx solid #e6ede8;
+  margin: 0;
+  padding: 30rpx 0;
+  border-radius: 0;
 }
-
-.fab-btn {
-  position: fixed;
-  right: 40rpx;
-  bottom: 120rpx; /* Adjust based on tabbar height */
-  width: 100rpx;
-  height: 100rpx;
-  background-color: #007aff;
-  border-radius: 50%;
+.conversation-row:last-child {
+  border-bottom: 0;
+}
+.conversation-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.3);
-  z-index: 100;
-
-  .icon {
-    color: #fff;
-    font-size: 60rpx;
-    line-height: 1;
-    margin-top: -10rpx;
-  }
+  flex: none;
+  width: 80rpx;
+  height: 80rpx;
+  background: #eaf2ed;
+  color: #216653;
+  border-radius: 24rpx;
 }
-
-.no-permission-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-top: 200rpx;
-
-  .title {
-    font-size: 36rpx;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20rpx;
-  }
-
-  .desc {
-    font-size: 28rpx;
-    color: #666;
-    margin-bottom: 60rpx;
-    text-align: center;
-    padding: 0 60rpx;
-  }
-
-  .auth-btn {
-    background-color: #007aff;
-    color: #fff;
-    font-size: 30rpx;
-    padding: 0 60rpx;
-    border-radius: 40rpx;
-    line-height: 80rpx;
-
-    &:active {
-      opacity: 0.9;
-    }
-  }
+.conversation-copy {
+  flex: 1;
+  min-width: 0;
+}
+.conversation-name {
+  display: block;
+  font-weight: 600;
+}
+.conversation-demand {
+  display: block;
+  font-size: 0.84em;
+  color: #697c75;
+  margin-top: 8rpx;
+}
+.conversation-history {
+  display: block;
+  font-size: 0.74em;
+  color: #8b7463;
+}
+.conversation-arrow {
+  width: 12rpx;
+  height: 12rpx;
+  border-top: 3rpx solid #8b9b94;
+  border-right: 3rpx solid #8b9b94;
+  transform: rotate(45deg);
+  flex: none;
+}
+.empty-line {
+  display: block;
 }
 </style>

@@ -4,19 +4,19 @@ import { useUserStore } from '../stores/user';
 
 // Mock wx.cloud
 const mockCallFunction = vi.fn();
-global.wx = {
+vi.stubGlobal('wx', {
   cloud: {
     callFunction: mockCallFunction,
   },
-} as any;
+});
 
 // Mock uni object
-global.uni = {
+vi.stubGlobal('uni', {
   setStorageSync: vi.fn(),
   getStorageSync: vi.fn(),
   removeStorageSync: vi.fn(),
   showToast: vi.fn(),
-} as any;
+});
 
 describe('User Store - Role Switching', () => {
   beforeEach(() => {

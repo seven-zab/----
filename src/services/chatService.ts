@@ -1,197 +1,104 @@
-import { useUserStore } from '@/stores/user';
-
+// Compatibility facade for callers migrating to demand-associated v1 conversations.
+import { useSessionStore } from '../stores/session';
+import {
+  listConversations,
+  listContacts,
+  getMessages as readMessages,
+  sendDraftMessage,
+} from './chatV1';
+import { errorMessage } from '../utils/display';
 export interface Conversation {
   _id: string;
   name: string;
-  avatar?: string;
-  lastMessage?: string;
-  unreadCount: number;
   updatedAt: number;
 }
-
 export interface Message {
   _id: string;
   conversationId: string;
   senderId: string;
-  receiverId: string;
-  type: 'text' | 'image' | 'system';
+  type: 'text' | 'image' | 'file';
   content: string;
   createTime: number;
-  isSelf?: boolean;
+  isSelf: boolean;
 }
-
 export interface ConversationListResult {
   list: Conversation[];
   total: number;
 }
-
 export interface MessageListResult {
   list: Message[];
   total: number;
 }
-
-const checkChatPermission = (): { allowed: boolean; error?: string } => {
-  const userStore = useUserStore();
-  if (!userStore.isLoggedIn) {
-    return { allowed: false, error: '请先登录' };
-  }
-  if (!userStore.canChat) {
-    return { allowed: false, error: '您没有聊天权限' };
-  }
-  return { allowed: true };
-};
-
-export const getConversations = async (): Promise<{ success: boolean; data?: ConversationListResult; error?: string }> => {
+export const checkChatPermission = (): { allowed: boolean; error?: string } =>
+  useSessionStore().me ? { allowed: true } : { allowed: false, error: '请先登录' };
+export async function getConversations() {
   const permission = checkChatPermission();
-  if (!permission.allowed) {
-    return { success: false, error: permission.error };
-  }
-
+  if (!permission.allowed) return { success: false, error: permission.error };
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'chatService',
-      data: {
-        action: 'getConversations',
-      },
-    });
-
-    if (result.code === 0) {
-      return { success: true, data: { list: result.data || [], total: result.data?.length || 0 } };
-    } else {
-      return { success: false, error: result.msg };
-    }
-  } catch (e: any) {
-    return { success: false, error: e.message || '网络错误' };
+    const result = await listConversations();
+    const list = result.items.map((c) => ({
+      _id: c.conversation_id,
+      name: c.display_name,
+      updatedAt: c.updated_at,
+    }));
+    return { success: true, data: { list, total: list.length, next_cursor: result.next_cursor } };
+  } catch (e) {
+    return { success: false, error: errorMessage(e) };
   }
-};
-
-export const createConversation = async (receiverId: string, receiverName?: string): Promise<{ success: boolean; conversationId?: string; error?: string }> => {
-  const permission = checkChatPermission();
-  if (!permission.allowed) {
-    return { success: false, error: permission.error };
-  }
-
-  if (!receiverId) {
-    return { success: false, error: '对方用户ID不能为空' };
-  }
-
+}
+export async function createConversation(receiverId: string, receiverName?: string) {
+  void receiverId;
+  void receiverName;
+  return {
+    success: false,
+    conversationId: undefined,
+    error: '请从需求详情发起咨询，不支持按陌生用户创建会话',
+  };
+}
+export async function getMessages(conversationId: string) {
+  if (!checkChatPermission().allowed) return { success: false, error: '请先登录' };
+  if (!conversationId) return { success: false, error: '会话ID不能为空' };
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'chatService',
-      data: {
-        action: 'createConversation',
-        payload: { receiverId, receiverName },
-      },
-    });
-
-    if (result.code === 0) {
-      return { success: true, conversationId: result.data?._id };
-    } else {
-      return { success: false, error: result.msg };
-    }
-  } catch (e: any) {
-    return { success: false, error: e.message || '网络错误' };
+    const result = await readMessages(conversationId);
+    const list = result.items.map((m) => ({
+      _id: m.message_id,
+      conversationId: m.conversation_id,
+      senderId: m.sender_user_id,
+      type: m.content_type,
+      content: m.content,
+      createTime: m.created_at,
+      isSelf: m.sender_user_id === useSessionStore().me?.user_id,
+    }));
+    return { success: true, data: { list, total: list.length, next_cursor: result.next_cursor } };
+  } catch (e) {
+    return { success: false, error: errorMessage(e) };
   }
-};
-
-export const getMessages = async (conversationId: string): Promise<{ success: boolean; data?: MessageListResult; error?: string }> => {
-  const permission = checkChatPermission();
-  if (!permission.allowed) {
-    return { success: false, error: permission.error };
-  }
-
-  if (!conversationId) {
-    return { success: false, error: '会话ID不能为空' };
-  }
-
+}
+export async function sendMessage(
+  conversationId: string,
+  content: string,
+  type: 'text' | 'image' = 'text',
+) {
+  if (!checkChatPermission().allowed) return { success: false, error: '请先登录' };
+  if (!conversationId || !content.trim())
+    return { success: false, error: '会话与消息内容不能为空' };
+  if (type !== 'text')
+    return { success: false, error: '请使用经检查并绑定的附件，不支持旧图片链接' };
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'chatService',
-      data: {
-        action: 'getMessages',
-        payload: { conversationId },
-      },
-    });
-
-    if (result.code === 0) {
-      const userStore = useUserStore();
-      const userId = userStore.userInfo?._id || userStore.userInfo?.openid;
-      const list = (result.data || []).map((msg: any) => ({
-        ...msg,
-        isSelf: msg.senderId === userId,
-      }));
-      return { success: true, data: { list, total: list.length } };
-    } else {
-      return { success: false, error: result.msg };
-    }
-  } catch (e: any) {
-    return { success: false, error: e.message || '网络错误' };
+    await sendDraftMessage(conversationId, content.trim());
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: errorMessage(e) };
   }
-};
-
-export const sendMessage = async (conversationId: string, content: string, type: 'text' | 'image' = 'text'): Promise<{ success: boolean; error?: string }> => {
-  const permission = checkChatPermission();
-  if (!permission.allowed) {
-    return { success: false, error: permission.error };
-  }
-
-  if (!conversationId) {
-    return { success: false, error: '会话ID不能为空' };
-  }
-
-  if (!content || content.trim() === '') {
-    return { success: false, error: '消息内容不能为空' };
-  }
-
+}
+export const sendImageMessage = (conversationId: string, imageUrl: string) =>
+  sendMessage(conversationId, imageUrl, 'image');
+export async function getContacts() {
+  if (!checkChatPermission().allowed) return { success: false, error: '请先登录' };
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'chatService',
-      data: {
-        action: 'sendMessage',
-        payload: {
-          conversationId,
-          type,
-          content: content.trim(),
-        },
-      },
-    });
-
-    if (result.code === 0) {
-      return { success: true };
-    } else {
-      return { success: false, error: result.msg };
-    }
-  } catch (e: any) {
-    return { success: false, error: e.message || '网络错误' };
+    const result = await listContacts();
+    return { success: true, data: result.items, next_cursor: result.next_cursor };
+  } catch (e) {
+    return { success: false, error: errorMessage(e) };
   }
-};
-
-export const sendImageMessage = async (conversationId: string, imageUrl: string): Promise<{ success: boolean; error?: string }> => {
-  return sendMessage(conversationId, imageUrl, 'image');
-};
-
-export const getContacts = async (): Promise<{ success: boolean; data?: any[]; error?: string }> => {
-  const permission = checkChatPermission();
-  if (!permission.allowed) {
-    return { success: false, error: permission.error };
-  }
-
-  try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'chatService',
-      data: {
-        action: 'getContacts',
-      },
-    });
-
-    if (result.code === 0) {
-      return { success: true, data: result.data || [] };
-    } else {
-      return { success: false, error: result.msg };
-    }
-  } catch (e: any) {
-    return { success: false, error: e.message || '网络错误' };
-  }
-};
-
-export { checkChatPermission };
+}

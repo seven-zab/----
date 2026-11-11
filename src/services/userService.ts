@@ -1,3 +1,4 @@
+import { legacyCall } from '@/services/legacyCloudClient';
 import { useUserStore } from '@/stores/user';
 
 export interface PendingUser {
@@ -34,14 +35,18 @@ const checkUserAuditPermission = (): { allowed: boolean; error?: string } => {
   return { allowed: true };
 };
 
-export const listPendingUsers = async (): Promise<{ success: boolean; data?: UserListResult; error?: string }> => {
+export const listPendingUsers = async (): Promise<{
+  success: boolean;
+  data?: UserListResult;
+  error?: string;
+}> => {
   const permission = checkUserAuditPermission();
   if (!permission.allowed) {
     return { success: false, error: permission.error };
   }
 
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<UserListResult>({
       name: 'userService',
       data: { action: 'listPendingUsers' },
     });
@@ -56,7 +61,9 @@ export const listPendingUsers = async (): Promise<{ success: boolean; data?: Use
   }
 };
 
-export const auditUser = async (data: AuditUserData): Promise<{ success: boolean; error?: string }> => {
+export const auditUser = async (
+  data: AuditUserData,
+): Promise<{ success: boolean; error?: string }> => {
   const permission = checkUserAuditPermission();
   if (!permission.allowed) {
     return { success: false, error: permission.error };
@@ -71,7 +78,7 @@ export const auditUser = async (data: AuditUserData): Promise<{ success: boolean
   }
 
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<null>({
       name: 'userService',
       data: {
         action: 'auditUser',
@@ -89,11 +96,16 @@ export const auditUser = async (data: AuditUserData): Promise<{ success: boolean
   }
 };
 
-export const approveUser = async (userId: string): Promise<{ success: boolean; error?: string }> => {
+export const approveUser = async (
+  userId: string,
+): Promise<{ success: boolean; error?: string }> => {
   return auditUser({ targetUserId: userId, action: 'approve' });
 };
 
-export const rejectUser = async (userId: string, reason?: string): Promise<{ success: boolean; error?: string }> => {
+export const rejectUser = async (
+  userId: string,
+  reason?: string,
+): Promise<{ success: boolean; error?: string }> => {
   return auditUser({ targetUserId: userId, action: 'reject', reason });
 };
 

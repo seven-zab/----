@@ -1,219 +1,131 @@
 <template>
-  <view class="container">
-    <wd-navbar title="身份审核" left-text="返回" left-arrow @click-left="goBack" />
-
-    <view class="audit-list">
-      <view v-if="loading" class="loading">加载中...</view>
-      <view v-else-if="userList.length === 0" class="empty">暂无待审核用户</view>
-
-      <view v-else class="user-card" v-for="user in userList" :key="user._id">
-        <view class="card-header">
-          <text class="name">{{ user.name }}</text>
-          <text class="role-tag">{{ getRoleName(user.role) }}</text>
-        </view>
-
-        <view class="card-body">
-          <view class="info-row">
-            <text class="label">手机号：</text>
-            <text class="value">{{ user.phone }}</text>
-          </view>
-          <view class="info-row">
-            <text class="label">申请时间：</text>
-            <text class="value">{{ formatDate(user.created_at) }}</text>
-          </view>
-          <view class="info-row" v-if="user.verify_material">
-            <text class="label">证明材料：</text>
-            <image
-              :src="user.verify_material"
-              mode="aspectFit"
-              class="material-img"
-              @click="previewImage(user.verify_material)"
-            />
-          </view>
-        </view>
-
-        <view class="card-footer">
-          <wd-button type="error" size="small" plain @click="handleAudit(user, 'reject')"
-            >拒绝</wd-button
-          >
-          <wd-button type="primary" size="small" @click="handleAudit(user, 'approve')"
-            >通过</wd-button
-          >
-        </view>
-      </view>
-    </view>
-  </view>
+  <PageShell
+    ><text class="heading">管理工作台</text
+    ><template v-if="session.isManager">
+      <text>当前身份与辖区由服务器授权决定。</text
+      ><view class="row"
+        ><button @click="loadApplications('farmer')">农商户申请</button
+        ><button @click="loadApplications('teacher_student')">本校师生共享队列</button
+        ><button
+          v-if="session.validGrant?.role === 'super_admin'"
+          @click="loadApplications('local_admin')"
+        >
+          管理身份申请
+        </button></view
+      >
+      <textarea v-model="reason" placeholder="驳回理由（5—500字）" />
+      <view class="card" v-for="app in applications" :key="app.application_id"
+        ><text>{{ roleLabels[app.requested_role] }} · {{ app.profile_kind }}</text
+        ><view class="row"
+          ><button :disabled="busy" @click="inspect(app)">查看认证材料</button
+          ><button :disabled="busy" @click="review(app, 'approve')">通过身份申请</button
+          ><button :disabled="busy" @click="review(app, 'reject')">驳回</button></view
+        ></view
+      >
+      <view v-if="inspected" class="card"
+        ><text>{{ inspected.details.contact_name }} · {{ inspected.details.contact_phone }}</text
+        ><text>{{
+          inspected.details.business_description || inspected.details.school_identity_number
+        }}</text
+        ><button @click="previewMaterials">查看证明图片</button></view
+      >
+      <button @click="loadDemands">待审核需求</button
+      ><view class="card" v-for="d in demands" :key="d.demand_id" @click="open(d.demand_id)"
+        ><text>{{ d.title }}</text
+        ><text class="status">{{ labels[d.status] }}</text></view
+      > </template
+    ><text v-else>请选择有效管理身份后进入。</text><text class="error">{{ error }}</text></PageShell
+  >
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
-const userList = ref<any[]>([]);
-const loading = ref(false);
-const CLOUD_ENV = 'test-yzxz-0g1jgylp46818d68'; // Should be dynamic but hardcoded for now matching user store
-
-const getRoleName = (role: string) => {
-  const map: Record<string, string> = {
-    farmer: '农商户',
-    school_admin: '高校师生',
-    local_admin: '村委/团委',
-    general_user: '普通用户',
-  };
-  return map[role] || role;
-};
-
-const formatDate = (ts: number | string) => {
-  if (!ts) return '-';
-  const date = new Date(ts);
-  return `${date.getFullYear()}-${
-    date.getMonth() + 1
-  }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
-};
-
-const goBack = () => {
-  uni.navigateBack();
-};
-
-const fetchList = async () => {
-  loading.value = true;
+import { ref } from 'vue';
+import PageShell from '../../components/PageShell.vue';
+import { useSessionStore } from '../../stores/session';
+import { cloudCall, newRequestId } from '../../services/cloudClient';
+import type { ContractMap } from '../../../contracts/generated/dto';
+import { demandStatusLabels as labels, roleLabels, errorMessage } from '../../utils/display';
+const session = useSessionStore();
+type App = ContractMap['userService.listPendingApplications']['response']['items'][number];
+const applications = ref<App[]>([]);
+const demands = ref<ContractMap['demandService.listPendingAudit']['response']['items']>([]);
+const reason = ref('');
+const error = ref('');
+const busy = ref(false);
+const inspected = ref<ContractMap['userService.getApplication']['response'] | null>(null);
+async function inspect(app: App) {
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'userService',
-      data: { action: 'listPendingUsers' },
-      config: { env: CLOUD_ENV },
-    });
-
-    if ((result as any).code === 0) {
-      userList.value = (result as any).data.list;
-    } else {
-      uni.showToast({ title: (result as any).msg, icon: 'none' });
-    }
+    inspected.value = await cloudCall(
+      'userService.getApplication',
+      { application_id: app.application_id },
+      session.options(),
+    );
+    error.value = '';
   } catch (e) {
-    console.error(e);
-    uni.showToast({ title: '加载失败', icon: 'none' });
-  } finally {
-    loading.value = false;
+    error.value = errorMessage(e);
   }
-};
-
-const handleAudit = async (user: any, action: 'approve' | 'reject') => {
-  uni.showLoading({ title: '处理中...' });
+}
+async function previewMaterials() {
+  if (!inspected.value) return;
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'userService',
-      data: {
-        action: 'auditUser',
-        data: {
-          targetUserId: user._id,
-          action: action,
-        },
+    const urls = await cloudCall(
+      'fileService.getAccessUrl',
+      {
+        file_ids: inspected.value.material_ids,
+        resource_type: 'application',
+        resource_id: inspected.value.application.application_id,
+        purpose: 'role-review',
       },
-      config: { env: CLOUD_ENV },
-    });
-
-    uni.hideLoading();
-    if ((result as any).code === 0) {
-      uni.showToast({ title: '操作成功', icon: 'success' });
-      // Remove from list locally
-      userList.value = userList.value.filter((u) => u._id !== user._id);
-    } else {
-      uni.showToast({ title: (result as any).msg, icon: 'none' });
-    }
+      session.options(),
+    );
+    uni.previewImage({ urls: urls.map((f) => f.url) });
   } catch (e) {
-    uni.hideLoading();
-    uni.showToast({ title: '操作失败', icon: 'none' });
+    error.value = errorMessage(e);
   }
-};
-
-const previewImage = (url: string) => {
-  uni.previewImage({ urls: [url] });
-};
-
-onMounted(() => {
-  fetchList();
-});
+}
+let queue: 'farmer' | 'teacher_student' | 'local_admin' = 'farmer';
+async function loadApplications(q: typeof queue) {
+  queue = q;
+  try {
+    const result = await cloudCall(
+      'userService.listPendingApplications',
+      { queue: q },
+      session.options(),
+    );
+    applications.value = result.items;
+    error.value = '';
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
+}
+async function review(app: App, decision: 'approve' | 'reject') {
+  busy.value = true;
+  try {
+    await cloudCall(
+      'userService.reviewRoleApplication',
+      {
+        application_id: app.application_id,
+        expected_version: app.version,
+        decision,
+        ...(decision === 'reject' ? { reason: reason.value } : {}),
+      },
+      { ...session.options(), idempotency_key: newRequestId() },
+    );
+    await loadApplications(queue);
+  } catch (e) {
+    error.value = errorMessage(e);
+  } finally {
+    busy.value = false;
+  }
+}
+async function loadDemands() {
+  try {
+    demands.value = (
+      await cloudCall('demandService.listPendingAudit', {}, session.options())
+    ).items;
+    error.value = '';
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
+}
+const open = (id: string) => uni.navigateTo({ url: '/pages/demand-detail/demand-detail?id=' + id });
 </script>
-
-<style lang="scss" scoped>
-.container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 40rpx;
-}
-
-.audit-list {
-  padding: 20rpx;
-}
-
-.loading,
-.empty {
-  text-align: center;
-  padding: 40rpx;
-  color: #999;
-  font-size: 28rpx;
-}
-
-.user-card {
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 20rpx;
-    border-bottom: 1rpx solid #eee;
-
-    .name {
-      font-size: 32rpx;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .role-tag {
-      font-size: 24rpx;
-      color: #007aff;
-      background: rgba(0, 122, 255, 0.1);
-      padding: 4rpx 12rpx;
-      border-radius: 4rpx;
-    }
-  }
-
-  .card-body {
-    padding: 20rpx 0;
-
-    .info-row {
-      display: flex;
-      margin-bottom: 12rpx;
-      font-size: 28rpx;
-
-      .label {
-        color: #666;
-        width: 160rpx;
-      }
-
-      .value {
-        color: #333;
-        flex: 1;
-      }
-
-      .material-img {
-        width: 160rpx;
-        height: 160rpx;
-        border-radius: 8rpx;
-        background: #eee;
-      }
-    }
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 20rpx;
-    padding-top: 20rpx;
-    border-top: 1rpx solid #eee;
-  }
-}
-</style>

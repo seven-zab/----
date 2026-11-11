@@ -1,0 +1,144 @@
+{
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "grant_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "general_user",
+              "farmer",
+              "teacher_student",
+              "local_admin",
+              "super_admin"
+            ]
+          },
+          "profile_kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "farmer",
+                  "merchant",
+                  "teacher",
+                  "student"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scope_type": {
+            "type": "string",
+            "enum": [
+              "self",
+              "region",
+              "platform"
+            ]
+          },
+          "scope_region_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "revoked",
+              "expired"
+            ]
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "renewed_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "grant_id",
+          "role",
+          "profile_kind",
+          "organization_id",
+          "scope_type",
+          "scope_region_id",
+          "status",
+          "expires_at",
+          "renewed_from"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 50,
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "next_cursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "has_more": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "items",
+    "next_cursor",
+    "has_more"
+  ],
+  "additionalProperties": false
+}

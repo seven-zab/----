@@ -1,301 +1,182 @@
 <template>
-  <view class="container">
-    <view class="header">
-      <text class="title">身份认证申请</text>
-      <text class="desc">选择您要申请的身份类型</text>
-    </view>
-
-    <!-- 角色选择 -->
-    <view class="role-list">
-      <view
-        class="role-card"
-        :class="{ active: selectedRole === 'farmer' }"
-        @click="selectRole('farmer')"
-      >
-        <view class="role-icon">🌾</view>
-        <view class="role-info">
-          <text class="role-name">农户/商户</text>
-          <text class="role-desc">发布劳务、技术、设计、电商等帮扶需求</text>
-        </view>
-        <view class="check-icon" v-if="selectedRole === 'farmer'">✓</view>
-      </view>
-
-      <view
-        class="role-card"
-        :class="{ active: selectedRole === 'school_admin' }"
-        @click="selectRole('school_admin')"
-      >
-        <view class="role-icon">🎓</view>
-        <view class="role-info">
-          <text class="role-name">高校师生</text>
-          <text class="role-desc">认领需求，提供智力与实践服务</text>
-        </view>
-        <view class="check-icon" v-if="selectedRole === 'school_admin'">✓</view>
-      </view>
-    </view>
-
-    <!-- 认证材料 -->
-    <view class="form-section" v-if="selectedRole">
-      <view class="section-title">认证材料</view>
-
-      <view class="form-item">
-        <view class="label">姓名</view>
-        <wd-input v-model="formData.name" placeholder="请输入真实姓名" />
-      </view>
-
-      <view class="form-item">
-        <view class="label">联系电话</view>
-        <wd-input v-model="formData.phone" type="number" placeholder="请输入联系电话" />
-      </view>
-
-      <view class="form-item">
-        <view class="label">身份证号</view>
-        <wd-input v-model="formData.idCard" placeholder="请输入身份证号" />
-      </view>
-
-      <view class="form-item" v-if="selectedRole === 'farmer'">
-        <view class="label">土地/营业证明</view>
-        <view class="upload-area" @click="uploadMaterial">
-          <text v-if="!formData.material">+</text>
-          <image v-else :src="formData.material" mode="aspectFill" class="preview-img" />
-        </view>
-        <text class="upload-tip">上传土地证、营业执照等证明材料</text>
-      </view>
-
-      <view class="form-item" v-if="selectedRole === 'school_admin'">
-        <view class="label">学生证/教师证</view>
-        <view class="upload-area" @click="uploadMaterial">
-          <text v-if="!formData.material">+</text>
-          <image v-else :src="formData.material" mode="aspectFill" class="preview-img" />
-        </view>
-        <text class="upload-tip">上传学生证或教师证照片</text>
-      </view>
-    </view>
-
-    <!-- 提交按钮 -->
-    <view class="submit-area" v-if="selectedRole">
-      <wd-button type="primary" block @click="submitApply" :loading="loading">提交申请</wd-button>
-      <text class="submit-tip">提交后预计1-3个工作日内完成审核</text>
-    </view>
-  </view>
+  <PageShell>
+    <text class="heading">平台人工身份认证</text
+    ><text>不同身份独立审核。请勿上传身份证或身份证照片。</text>
+    <view class="row"
+      ><button @click="role = 'farmer'">农商户</button
+      ><button @click="role = 'teacher_student'">深圳技术大学师生</button
+      ><button @click="role = 'local_admin'">村委</button></view
+    >
+    <text class="field">姓名 / 联系电话</text><input v-model="name" placeholder="姓名" /><input
+      v-model="phone"
+      type="number"
+      maxlength="11"
+      placeholder="大陆手机号"
+    />
+    <template v-if="role !== 'teacher_student'"
+      ><text class="field">所属试点村</text
+      ><picker :range="regions.map((r) => r.name)" @change="pickRegion"
+        ><view class="card">{{
+          regions.find((r) => r.region_id === regionId)?.name || '请选择'
+        }}</view></picker
+      ></template
+    >
+    <template v-if="role === 'farmer'"
+      ><picker :range="['农户', '商户']" @change="pickFarmer"
+        ><view class="card">{{ profile === 'merchant' ? '商户' : '农户' }}</view></picker
+      ><textarea v-model="description" placeholder="经营情况说明" />
+    </template>
+    <template v-if="role === 'teacher_student'"
+      ><text>学校固定为深圳技术大学</text
+      ><picker :range="['学生', '老师']" @change="pickStudent"
+        ><view class="card">{{ profile === 'teacher' ? '老师' : '学生' }}</view></picker
+      ><input v-model="schoolNumber" placeholder="学号 / 工号"
+    /></template>
+    <input
+      v-if="role === 'local_admin'"
+      v-model="organization"
+      placeholder="已核验的村委组织编号"
+    />
+    <text class="field">证明材料（图片）</text><text>{{ materials.length }} 份已检查材料</text
+    ><button :disabled="busy || materials.length >= 5" @click="upload">添加证明图片</button>
+    <button class="primary" :disabled="busy" @click="submit">提交身份申请</button>
+    <button
+      v-for="g in studentGrants"
+      :key="g.grant_id"
+      :disabled="busy"
+      @click="renew(g.grant_id)"
+    >
+      复核原师生身份（保留原任务绑定）
+    </button>
+    <text class="error">{{ error }}</text
+    ><text class="status">{{ notice }}</text>
+    <view v-for="app in session.me?.application_summaries" :key="app.application_id" class="card"
+      >{{ app.requested_role }} · {{ app.status }}</view
+    >
+  </PageShell>
 </template>
-
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-
-const selectedRole = ref('');
-const loading = ref(false);
-
-const formData = reactive({
-  name: '',
-  phone: '',
-  idCard: '',
-  material: '',
-});
-
-const selectRole = (role: string) => {
-  selectedRole.value = role;
-};
-
-const uploadMaterial = () => {
-  uni.chooseImage({
-    count: 1,
-    success: (res) => {
-      uni.showLoading({ title: '上传中...' });
-      const filePath = res.tempFilePaths[0];
-
-      const cloudPath = `verify/${Date.now()}-${Math.random()}.${filePath.split('.').pop()}`;
-
-      wx.cloud.uploadFile({
-        cloudPath,
-        filePath,
-        success: (uploadRes) => {
-          formData.material = uploadRes.fileID;
-          uni.hideLoading();
-          uni.showToast({ title: '上传成功', icon: 'success' });
-        },
-        fail: () => {
-          uni.hideLoading();
-          uni.showToast({ title: '上传失败', icon: 'none' });
-        },
-      });
-    },
-  });
-};
-
-const submitApply = async () => {
-  if (!formData.name || !formData.phone || !formData.idCard) {
-    uni.showToast({ title: '请填写完整信息', icon: 'none' });
-    return;
-  }
-
-  if (!formData.material) {
-    uni.showToast({ title: '请上传认证材料', icon: 'none' });
-    return;
-  }
-
-  loading.value = true;
+import { computed, ref } from 'vue';
+import { onLoad } from '@dcloudio/uni-app';
+import PageShell from '../../components/PageShell.vue';
+import { useSessionStore } from '../../stores/session';
+import { cloudCall, newRequestId } from '../../services/cloudClient';
+import { uploadImage } from '../../services/fileV1';
+import { errorMessage } from '../../utils/display';
+const session = useSessionStore();
+const role = ref<'farmer' | 'teacher_student' | 'local_admin'>('farmer');
+const profile = ref('farmer');
+const name = ref('');
+const phone = ref('');
+const regionId = ref('');
+const schoolNumber = ref('');
+const organization = ref('');
+const description = ref('');
+const materials = ref<string[]>([]);
+const busy = ref(false);
+const error = ref('');
+const notice = ref('');
+const regions = ref<Array<{ region_id: string; name: string }>>([]);
+const studentGrants = computed(
+  () =>
+    session.me?.grants.filter((g) => g.role === 'teacher_student' && g.status !== 'revoked') ?? [],
+);
+function pickRegion(e: { detail: { value: string | number } }) {
+  regionId.value = regions.value[Number(e.detail.value)].region_id;
+}
+function pickFarmer(e: { detail: { value: string | number } }) {
+  profile.value = Number(e.detail.value) === 1 ? 'merchant' : 'farmer';
+}
+function pickStudent(e: { detail: { value: string | number } }) {
+  profile.value = Number(e.detail.value) === 1 ? 'teacher' : 'student';
+}
+async function upload() {
+  busy.value = true;
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'register',
-      data: {
-        name: formData.name,
-        phone: formData.phone,
-        role: selectedRole.value,
-        verify_material: formData.material,
-        id_card: formData.idCard,
-      },
-    });
-
-    loading.value = false;
-    if (result.code === 0) {
-      uni.showToast({ title: '提交成功', icon: 'success' });
-      setTimeout(() => {
-        uni.navigateBack();
-      }, 1500);
-    } else {
-      uni.showToast({ title: result.msg || '提交失败', icon: 'none' });
-    }
+    materials.value.push(await uploadImage('identity'));
+    error.value = '';
   } catch (e) {
-    loading.value = false;
-    uni.showToast({ title: '提交失败', icon: 'none' });
+    error.value = errorMessage(e);
+  } finally {
+    busy.value = false;
   }
-};
+}
+async function submit() {
+  busy.value = true;
+  error.value = '';
+  try {
+    const common = {
+      contact_name: name.value,
+      contact_phone: phone.value,
+      material_ids: materials.value,
+    };
+    const input =
+      role.value === 'teacher_student'
+        ? {
+            ...common,
+            requested_role: 'teacher_student' as const,
+            profile_kind: profile.value === 'teacher' ? ('teacher' as const) : ('student' as const),
+            organization_id: 'sztu' as const,
+            school_identity_number: schoolNumber.value,
+          }
+        : role.value === 'farmer'
+        ? {
+            ...common,
+            requested_role: 'farmer' as const,
+            profile_kind:
+              profile.value === 'merchant' ? ('merchant' as const) : ('farmer' as const),
+            scope_region_id: regionId.value,
+            business_description: description.value,
+            proof_kind:
+              profile.value === 'merchant'
+                ? ('business_license' as const)
+                : ('operation_photo' as const),
+          }
+        : {
+            ...common,
+            requested_role: 'local_admin' as const,
+            scope_region_id: regionId.value,
+            organization_id: organization.value,
+          };
+    await cloudCall('userService.applyRole', input, { idempotency_key: newRequestId() });
+    notice.value = '已提交待审核';
+    await session.refresh();
+  } catch (e) {
+    error.value = errorMessage(e);
+  } finally {
+    busy.value = false;
+  }
+}
+async function renew(source_grant_id: string) {
+  busy.value = true;
+  try {
+    await cloudCall(
+      'userService.applyRenewal',
+      {
+        source_grant_id,
+        profile_kind: profile.value === 'teacher' ? 'teacher' : 'student',
+        school_identity_number: schoolNumber.value,
+        contact_name: name.value,
+        contact_phone: phone.value,
+        material_ids: materials.value,
+      },
+      { idempotency_key: newRequestId() },
+    );
+    notice.value = '已提交师生共享复核队列';
+    await session.refresh();
+  } catch (e) {
+    error.value = errorMessage(e);
+  } finally {
+    busy.value = false;
+  }
+}
+onLoad(() => {
+  cloudCall('userService.listRegions', {})
+    .then((r) => {
+      regions.value = r.items;
+    })
+    .catch((e) => {
+      error.value = errorMessage(e);
+    });
+});
 </script>
-
-<style lang="scss" scoped>
-.container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 30rpx;
-}
-
-.header {
-  margin-bottom: 40rpx;
-
-  .title {
-    font-size: 40rpx;
-    font-weight: bold;
-    color: #333;
-    display: block;
-    margin-bottom: 16rpx;
-  }
-
-  .desc {
-    font-size: 28rpx;
-    color: #999;
-  }
-}
-
-.role-list {
-  margin-bottom: 40rpx;
-
-  .role-card {
-    background-color: #fff;
-    border-radius: 16rpx;
-    padding: 30rpx;
-    display: flex;
-    align-items: center;
-    margin-bottom: 20rpx;
-    border: 2rpx solid transparent;
-    transition: all 0.2s;
-
-    &.active {
-      border-color: #1890ff;
-      background-color: #e6f7ff;
-    }
-
-    .role-icon {
-      font-size: 60rpx;
-      margin-right: 30rpx;
-    }
-
-    .role-info {
-      flex: 1;
-
-      .role-name {
-        font-size: 32rpx;
-        font-weight: bold;
-        color: #333;
-        display: block;
-        margin-bottom: 10rpx;
-      }
-
-      .role-desc {
-        font-size: 24rpx;
-        color: #999;
-      }
-    }
-
-    .check-icon {
-      width: 40rpx;
-      height: 40rpx;
-      border-radius: 50%;
-      background-color: #1890ff;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24rpx;
-    }
-  }
-}
-
-.form-section {
-  .section-title {
-    font-size: 32rpx;
-    font-weight: bold;
-    margin-bottom: 30rpx;
-    color: #333;
-  }
-
-  .form-item {
-    margin-bottom: 30rpx;
-
-    .label {
-      font-size: 28rpx;
-      font-weight: bold;
-      margin-bottom: 16rpx;
-      color: #333;
-    }
-
-    .upload-tip {
-      font-size: 24rpx;
-      color: #999;
-      margin-top: 10rpx;
-      display: block;
-    }
-  }
-
-  .upload-area {
-    width: 200rpx;
-    height: 200rpx;
-    border: 2rpx dashed #ddd;
-    border-radius: 12rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 60rpx;
-    color: #ddd;
-    background-color: #fafafa;
-
-    .preview-img {
-      width: 100%;
-      height: 100%;
-      border-radius: 12rpx;
-    }
-  }
-}
-
-.submit-area {
-  margin-top: 60rpx;
-
-  .submit-tip {
-    display: block;
-    text-align: center;
-    font-size: 24rpx;
-    color: #999;
-    margin-top: 20rpx;
-  }
-}
-</style>

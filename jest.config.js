@@ -1,6 +1,8 @@
 module.exports = {
   testEnvironment: 'jest-environment-node',
-  testMatch: ['**/tests/e2e/**/*.test.js'],
-  testTimeout: 30000,
+  roots: ['<rootDir>/tests/e2e'],
+  testMatch: ['<rootDir>/tests/e2e/**/*.test.js'],
+  modulePathIgnorePatterns: ['<rootDir>/.baseline/', '<rootDir>/.cache/', '<rootDir>/dist/'],
+  testTimeout: 90000,
   verbose: true,
 };

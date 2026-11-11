@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "enterprise",
+        "agriculture",
+        "research",
+        "campus"
+      ]
+    },
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "definition_json": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50000
+    },
+    "content_hash": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "type",
+    "schema_version",
+    "definition_json",
+    "content_hash"
+  ],
+  "additionalProperties": false
+}

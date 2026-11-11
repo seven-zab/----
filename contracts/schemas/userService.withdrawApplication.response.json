@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "properties": {
+    "application_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "status": {
+      "const": "withdrawn"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "application_id",
+    "status",
+    "version"
+  ],
+  "additionalProperties": false
+}

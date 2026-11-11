@@ -1,12 +1,14 @@
-# 云治乡智 1.0 (Cloud Rural Governance Intelligence)
+# 云治乡智（2.0 开发中）
 
 ## 开发基线（2026-10-24）
 
-开发前先阅读 [基线检查报告](docs/baseline.md) 和 [目标技术架构](docs/architecture/README.md)。目标方案中的AI与业务闭环不代表当前代码已经实现。
+先阅读 [开发交接入口](docs/architecture/AI_HANDOFF.md)、[当前任务状态](docs/development-status.md)和[测试证据](docs/test-evidence.md)。本仓库已开始实现2.0，但当前仍是部分本地实现，不能作为完整2.0体验版或生产版本发布。
+
+测试同学从[验收执行说明](docs/testing/README.md)开始，复制[82项用例模板](docs/testing/acceptance-template.csv)记录实测结果；`npm run acceptance:check`核对模板与冻结规格一致。模板不包含通过结论。
 
 使用 `.nvmrc` 指定的 Node.js 22.19.0 和 npm 10.9.3。首次安装执行 `npm ci`，再从 `.env.test.example`、`.env.production.example` 复制本地配置并填写自己的云环境。不要提交真实环境配置、凭据或微信开发者工具个人配置。
 
-常用检查：`npm run check:repo`、`npm run lint:check`、`npm run test:coverage`、`npm run build:mp-weixin`。`npm run typecheck` 当前仍有已记录的历史错误，且尚未覆盖 Vue SFC 模板，详情见基线报告。`npm run lint` 会修改源码；只检查时使用 `lint:check`。
+常用检查：`npm run check:repo`、`npm run contracts:check`、`npm run typecheck`、`npm run lint:check`、`npm test`、`npm run build:cloudfunctions`、`npm run build:mp-weixin`。类型检查覆盖Vue SFC及服务端；历史145条类型错误已修复。`npm run lint`会修改源码；只检查时使用`lint:check`。新部署候选从`dist/cloudfunctions`构建，不上传旧云函数目录作为完整后端。
 
 源码、测试、必要静态资源、锁文件和文档入库；dist、coverage、node_modules、旧源码压缩包和本地恢复快照仅保留本地。CI产物通过Artifacts保存，不写入Git。推送代码不等于部署微信小程序或云函数。
 
@@ -73,17 +75,17 @@
     *   AppID 请填写您自己的测试 AppID 或正式 AppID。
 
 5.  **部署云函数**:
-    *   在微信开发者工具中，右键点击 `cloudfunctions` 目录。
-    *   选择当前环境 -> “上传并部署：云端安装依赖（不上传node_modules）”。
+    *   当前尚未通过完整2.0发布门禁，不直接部署生产。
+    *   获得独立测试云授权后，从`dist/cloudfunctions`选择构建产物部署；不上传历史源码目录作为完整后端。
+    *   配置、权限、备份和回滚步骤见[部署与回滚说明](docs/deployment-and-rollback.md)。
 
 ## 已知问题 (Known Issues)
 *   聊天功能模块目前处于规划阶段，暂未完全实装 WebSocket 通信。
 *   部分安卓机型在上传大文件（>10MB）时可能偶发超时，建议使用 WiFi 环境。
 
-## 后续迭代计划 (Roadmap)
-*   **v1.1**: 完善聊天功能，支持 WebSocket 实时通讯与多媒体消息。
-*   **v1.2**: 引入 ECharts 图表，为管理员提供可视化数据看板。
-*   **v1.3**: 优化身份认证流程，支持 OCR 自动识别身份证信息。
+## 当前开发范围
+
+以冻结2.0规格的T00—T13为准，详见[任务状态](docs/development-status.md)。不收身份证资料，不包含OCR/语音/文档理解、独立匹配推荐、支付或PC后台。当前AI、可靠通知、统计双格式导出、完整迁移及真实环境验收仍未交付。
 
 ---
 © 2026 云治乡智团队

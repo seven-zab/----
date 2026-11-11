@@ -3,10 +3,10 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 
 // Mock uni-app APIs
-global.uni = {
+vi.stubGlobal('uni', {
   getStorageSync: vi.fn(),
   setStorageSync: vi.fn(),
-} as any;
+});
 
 describe('Settings Store', () => {
   beforeEach(() => {

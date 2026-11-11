@@ -1,0 +1,58 @@
+{
+  "type": "object",
+  "properties": {
+    "source_type": {
+      "const": "official_text"
+    },
+    "source_ref": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 2000
+    },
+    "title": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 200
+    },
+    "assistant_usage": {
+      "type": "string",
+      "enum": [
+        "business_answer",
+        "tool_reference",
+        "management_answer"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "business_scene": {
+          "type": "string",
+          "enum": [
+            "village",
+            "campus"
+          ]
+        },
+        "region_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "campus_organization_id": {
+          "const": "sztu"
+        }
+      },
+      "required": [
+        "business_scene"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "source_type",
+    "source_ref",
+    "title",
+    "assistant_usage",
+    "scope"
+  ],
+  "additionalProperties": false
+}

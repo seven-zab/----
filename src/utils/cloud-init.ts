@@ -1,8 +1,9 @@
 // src/utils/cloud-init.ts
 export const initCloud = () => {
-  const envId = import.meta.env.VITE_CLOUD_ENV_ID || 'test-yzxz-xxx';
+  const envId = getCloudEnvId();
 
   if (typeof wx !== 'undefined' && wx.cloud) {
+    if (!envId) throw new Error('未配置 VITE_CLOUD_ENV_ID');
     wx.cloud.init({
       env: envId,
       traceUser: true,
@@ -16,3 +17,4 @@ export const initCloud = () => {
     console.warn('wx.cloud is not available. Skipping cloud initialization.');
   }
 };
+export const getCloudEnvId = (): string => import.meta.env.VITE_CLOUD_ENV_ID?.trim() ?? '';

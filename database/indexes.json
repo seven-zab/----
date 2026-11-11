@@ -1,0 +1,360 @@
+{
+  "version": 1,
+  "status": "logical_plan_requires_test_environment_verification",
+  "indexes": [
+    {
+      "collection": "users",
+      "keys": {
+        "_openid": 1
+      },
+      "unique": true
+    },
+    {
+      "collection": "users",
+      "keys": {
+        "user_code": 1
+      },
+      "unique": true,
+      "sparse": true
+    },
+    {
+      "collection": "role_grants",
+      "keys": {
+        "user_id": 1,
+        "status": 1
+      },
+      "unique": false
+    },
+    {
+      "collection": "role_grants",
+      "keys": {
+        "scope_region_id": 1,
+        "role": 1,
+        "status": 1
+      },
+      "unique": false
+    },
+    {
+      "collection": "role_applications",
+      "keys": {
+        "requested_role": 1,
+        "status": 1,
+        "scope_region_id": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "role_applications",
+      "keys": {
+        "applicant_id": 1,
+        "created_at": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demands",
+      "keys": {
+        "public_listing": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demands",
+      "keys": {
+        "owner_id": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demands",
+      "keys": {
+        "created_by": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demands",
+      "keys": {
+        "participant_user_ids": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demands",
+      "keys": {
+        "region_id": 1,
+        "business_scene": 1,
+        "status": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demands",
+      "keys": {
+        "status": 1,
+        "expires_at": 1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demand_submissions",
+      "keys": {
+        "demand_id": 1,
+        "revision": 1
+      },
+      "unique": true
+    },
+    {
+      "collection": "demand_events",
+      "keys": {
+        "demand_id": 1,
+        "sequence": 1
+      },
+      "unique": true
+    },
+    {
+      "collection": "demand_events",
+      "keys": {
+        "demand_id": 1,
+        "visibility": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "team_members",
+      "keys": {
+        "team_id": 1,
+        "user_id": 1
+      },
+      "unique": true
+    },
+    {
+      "collection": "team_members",
+      "keys": {
+        "user_id": 1,
+        "created_at": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "team_invitations",
+      "keys": {
+        "invitee_id": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "file_bindings",
+      "keys": {
+        "file_id": 1,
+        "resource_type": 1,
+        "resource_id": 1
+      },
+      "unique": true
+    },
+    {
+      "collection": "file_bindings",
+      "keys": {
+        "resource_type": 1,
+        "resource_id": 1
+      },
+      "unique": false
+    },
+    {
+      "collection": "policies",
+      "keys": {
+        "status": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "delegation_authorizations",
+      "keys": {
+        "participant_user_ids": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "delegation_authorizations",
+      "keys": {
+        "participant_user_ids": 1,
+        "status": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "outbox_events",
+      "keys": {
+        "status": 1,
+        "next_retry_at": 1
+      },
+      "unique": false
+    },
+    {
+      "collection": "outbox_events",
+      "keys": {
+        "status": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demand_claims",
+      "keys": {
+        "status": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demand_completions",
+      "keys": {
+        "status": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "notifications",
+      "keys": {
+        "user_id": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "notifications",
+      "keys": {
+        "user_id": 1,
+        "unread": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "conversations",
+      "keys": {
+        "participant_user_ids": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "messages",
+      "keys": {
+        "conversation_id": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "messages",
+      "keys": {
+        "conversation_id": 1,
+        "sender_user_id": 1,
+        "client_message_id": 1
+      },
+      "unique": true,
+      "sparse": true
+    },
+    {
+      "collection": "conversation_reads",
+      "keys": {
+        "conversation_id": 1,
+        "user_id": 1
+      },
+      "unique": true
+    },
+    {
+      "collection": "demands",
+      "keys": {
+        "region_path_ids": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "demands",
+      "keys": {
+        "business_scene": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "claim_participants",
+      "keys": {
+        "demand_id": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "export_jobs",
+      "keys": {
+        "status": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "export_jobs",
+      "keys": {
+        "owner_id": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    },
+    {
+      "collection": "rate_limit_buckets",
+      "keys": {
+        "expires_at": 1
+      },
+      "unique": false
+    },
+    {
+      "collection": "migration_quarantine",
+      "keys": {
+        "plan_id": 1,
+        "source_collection": 1,
+        "created_at": -1,
+        "_id": -1
+      },
+      "unique": false
+    }
+  ]
+}

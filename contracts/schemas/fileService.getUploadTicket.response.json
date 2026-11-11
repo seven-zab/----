@@ -1,0 +1,123 @@
+{
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "cloud_file_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "expires_at": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "form_data": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "acl": {
+          "const": "private"
+        },
+        "Content-Type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "success_action_status": {
+          "const": "204"
+        },
+        "x-cos-meta-fileid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "x-cos-forbid-overwrite": {
+          "const": "true"
+        },
+        "x-cos-acl": {
+          "const": "private"
+        },
+        "x-cos-grant-read": {
+          "const": ""
+        },
+        "x-cos-grant-write": {
+          "const": ""
+        },
+        "x-cos-grant-read-acp": {
+          "const": ""
+        },
+        "x-cos-grant-write-acp": {
+          "const": ""
+        },
+        "x-cos-grant-full-control": {
+          "const": ""
+        },
+        "x-cos-security-token": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10000
+        },
+        "q-sign-algorithm": {
+          "const": "sha1"
+        },
+        "q-ak": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "q-key-time": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "q-signature": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "policy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30000
+        }
+      },
+      "required": [
+        "key",
+        "acl",
+        "Content-Type",
+        "success_action_status",
+        "x-cos-meta-fileid",
+        "x-cos-forbid-overwrite",
+        "x-cos-acl",
+        "x-cos-grant-read",
+        "x-cos-grant-write",
+        "x-cos-grant-read-acp",
+        "x-cos-grant-write-acp",
+        "x-cos-grant-full-control",
+        "x-cos-security-token",
+        "q-sign-algorithm",
+        "q-ak",
+        "q-key-time",
+        "q-signature",
+        "policy"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "url",
+    "cloud_file_id",
+    "expires_at",
+    "form_data"
+  ],
+  "additionalProperties": false
+}

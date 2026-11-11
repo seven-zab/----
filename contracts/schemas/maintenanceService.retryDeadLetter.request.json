@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "outbox",
+        "storage"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "event_id",
+    "kind",
+    "reason"
+  ],
+  "additionalProperties": false
+}

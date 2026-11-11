@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "team_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "expected_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "team_id",
+    "expected_version"
+  ],
+  "additionalProperties": false
+}

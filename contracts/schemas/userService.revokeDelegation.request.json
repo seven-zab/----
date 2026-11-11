@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "authorization_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "expected_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "authorization_id",
+    "expected_version"
+  ],
+  "additionalProperties": false
+}

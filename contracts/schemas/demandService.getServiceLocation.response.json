@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "properties": {
+    "location_text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "exact_address": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "location_text",
+    "exact_address"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "properties": {
+    "cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "page_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "revoked",
+        "consumed"
+      ]
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

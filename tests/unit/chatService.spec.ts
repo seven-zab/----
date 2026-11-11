@@ -1,6 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { setActivePinia, createPinia } from 'pinia';
-import { useUserStore } from '../../src/stores/user';
+import { beforeEach, expect, it, vi } from 'vitest';
 import {
   checkChatPermission,
   getConversations,
@@ -10,298 +8,125 @@ import {
   sendImageMessage,
   getContacts,
 } from '../../src/services/chatService';
-
-const mockCallFunction = vi.fn();
-vi.stubGlobal('wx', {
-  cloud: {
-    callFunction: mockCallFunction,
-  },
+const mocks = vi.hoisted(() => ({
+  me: { user_id: 'me' } as { user_id: string } | null,
+  list: vi.fn(),
+  contacts: vi.fn(),
+  messages: vi.fn(),
+  send: vi.fn(),
+}));
+vi.mock('../../src/stores/session', () => ({ useSessionStore: () => ({ me: mocks.me }) }));
+vi.mock('../../src/services/chatV1', () => ({
+  listConversations: mocks.list,
+  listContacts: mocks.contacts,
+  getMessages: mocks.messages,
+  sendDraftMessage: mocks.send,
+}));
+beforeEach(() => {
+  vi.clearAllMocks();
+  mocks.me = { user_id: 'me' };
 });
-
-vi.stubGlobal('uni', {
-  showToast: vi.fn(),
-  showLoading: vi.fn(),
-  hideLoading: vi.fn(),
+it('allows a logged in member to request history without trusting a local role flag', () => {
+  expect(checkChatPermission()).toEqual({ allowed: true });
 });
-
-describe('ChatService - 聊天功能', () => {
-  beforeEach(() => {
-    setActivePinia(createPinia());
-    vi.clearAllMocks();
+it('denies logged out history without making a service call', async () => {
+  mocks.me = null;
+  expect(checkChatPermission().error).toBe('请先登录');
+  expect((await getConversations()).success).toBe(false);
+  expect(mocks.list).not.toHaveBeenCalled();
+});
+it('maps only the current user conversation summaries', async () => {
+  mocks.list.mockResolvedValue({
+    items: [{ conversation_id: 'c', display_name: '对方', updated_at: 1 }],
+    next_cursor: null,
   });
-
-  describe('checkChatPermission - 聊天权限检查', () => {
-    it('should allow user with canChat permission', () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      const result = checkChatPermission();
-      expect(result.allowed).toBe(true);
-    });
-
-    it('should deny when not logged in', () => {
-      const store = useUserStore();
-      store.isLoggedIn = false;
-
-      const result = checkChatPermission();
-      expect(result.allowed).toBe(false);
-      expect(result.error).toBe('请先登录');
-    });
-
-    it('should deny general_user without chat permission', () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'general_user', status: 'active' } as any;
-      store.role = 'general_user';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      const result = checkChatPermission();
-      expect(result.allowed).toBe(false);
-      expect(result.error).toBe('您没有聊天权限');
-    });
+  expect((await getConversations()).data?.list[0]).toMatchObject({ _id: 'c', name: '对方' });
+});
+it('accepts an actual empty paged conversation result', async () => {
+  mocks.list.mockResolvedValue({ items: [], next_cursor: null });
+  expect((await getConversations()).data?.list).toEqual([]);
+});
+it('returns list transport errors instead of pretending an empty list succeeded', async () => {
+  mocks.list.mockRejectedValue(new Error('list failed'));
+  expect((await getConversations()).error).toBe('list failed');
+});
+it('rejects creating conversations from arbitrary user IDs', async () => {
+  expect((await createConversation('stranger', '任意用户')).success).toBe(false);
+  expect(mocks.send).not.toHaveBeenCalled();
+});
+it('rejects an empty arbitrary recipient as well', async () => {
+  expect((await createConversation('')).error).toContain('需求详情');
+});
+it('maps internal sender IDs and preserves paging of messages', async () => {
+  mocks.messages.mockResolvedValue({
+    items: [
+      {
+        message_id: 'a',
+        conversation_id: 'c',
+        sender_user_id: 'me',
+        content_type: 'text',
+        content: '你好',
+        created_at: 1,
+      },
+      {
+        message_id: 'b',
+        conversation_id: 'c',
+        sender_user_id: 'other',
+        content_type: 'text',
+        content: '您好',
+        created_at: 2,
+      },
+    ],
+    next_cursor: 'next',
   });
-
-  describe('getConversations - 获取会话列表', () => {
-    it('should get conversations successfully', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: {
-          code: 0,
-          data: [
-            { _id: 'conv1', name: 'User1', lastMessage: 'Hello', unreadCount: 1 },
-            { _id: 'conv2', name: 'User2', lastMessage: 'Hi', unreadCount: 0 },
-          ],
-        },
-      });
-
-      const result = await getConversations();
-      expect(result.success).toBe(true);
-      expect(result.data?.list.length).toBe(2);
-    });
-
-    it('should return empty list when no conversations', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: { code: 0, data: [] },
-      });
-
-      const result = await getConversations();
-      expect(result.success).toBe(true);
-      expect(result.data?.list.length).toBe(0);
-    });
-
-    it('should fail permission check', async () => {
-      const store = useUserStore();
-      store.isLoggedIn = false;
-
-      const result = await getConversations();
-      expect(result.success).toBe(false);
-      expect(mockCallFunction).not.toHaveBeenCalled();
-    });
+  const result = await getMessages('c');
+  expect(result.data?.list.map((m) => m.isSelf)).toEqual([true, false]);
+  expect(result.data?.next_cursor).toBe('next');
+});
+it('requires a conversation ID for message reads', async () => {
+  expect((await getMessages('')).success).toBe(false);
+  expect(mocks.messages).not.toHaveBeenCalled();
+});
+it('blocks logged out send and message reads', async () => {
+  mocks.me = null;
+  expect((await sendMessage('c', '你好')).error).toBe('请先登录');
+  expect((await getMessages('c')).error).toBe('请先登录');
+  expect(mocks.send).not.toHaveBeenCalled();
+});
+it('uses the shared sender and trims text', async () => {
+  mocks.send.mockResolvedValue({ message_id: 'm' });
+  expect((await sendMessage('c', '  你好  ')).success).toBe(true);
+  expect(mocks.send).toHaveBeenCalledWith('c', '你好');
+});
+it('rejects raw legacy image URLs', async () => {
+  expect((await sendImageMessage('c', 'cloud://unverified-image')).success).toBe(false);
+  expect(mocks.send).not.toHaveBeenCalled();
+});
+it('rejects empty send targets', async () => {
+  expect((await sendMessage('', '你好')).success).toBe(false);
+  expect(mocks.send).not.toHaveBeenCalled();
+});
+it('rejects whitespace-only message bodies', async () => {
+  expect((await sendMessage('c', '  ')).success).toBe(false);
+  expect(mocks.send).not.toHaveBeenCalled();
+});
+it('propagates send failure without claiming success', async () => {
+  mocks.send.mockRejectedValue(new Error('Failed to send'));
+  expect((await sendMessage('c', '你好')).error).toBe('Failed to send');
+});
+it('lists only business contacts from the v1 contact service', async () => {
+  mocks.contacts.mockResolvedValue({
+    items: [{ conversation_id: 'c', other_user_id: 'other' }],
+    next_cursor: null,
   });
-
-  describe('createConversation - 创建会话', () => {
-    it('should create conversation successfully', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: { code: 0, data: { _id: 'conv_new_123' } },
-      });
-
-      const result = await createConversation('user_456', 'Receiver');
-      expect(result.success).toBe(true);
-      expect(result.conversationId).toBe('conv_new_123');
-    });
-
-    it('should fail with empty receiverId', async () => {
-      const store = useUserStore();
-      store.isLoggedIn = true;
-      store.role = 'farmer';
-      store.status = 'active';
-
-      const result = await createConversation('');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('对方用户ID不能为空');
-    });
-  });
-
-  describe('getMessages - 获取消息列表', () => {
-    it('should get messages successfully and mark self messages', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'my_user_123', name: 'Me', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: {
-          code: 0,
-          data: [
-            { _id: 'msg1', senderId: 'my_user_123', content: 'Hello' },
-            { _id: 'msg2', senderId: 'other_user', content: 'Hi there' },
-          ],
-        },
-      });
-
-      const result = await getMessages('conv_123');
-      expect(result.success).toBe(true);
-      expect(result.data?.list[0].isSelf).toBe(true);
-      expect(result.data?.list[1].isSelf).toBe(false);
-    });
-
-    it('should fail with empty conversationId', async () => {
-      const store = useUserStore();
-      store.isLoggedIn = true;
-      store.role = 'farmer';
-      store.status = 'active';
-
-      const result = await getMessages('');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('会话ID不能为空');
-    });
-  });
-
-  describe('sendMessage - 发送消息', () => {
-    it('should send text message successfully', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: { code: 0, msg: 'Success' },
-      });
-
-      const result = await sendMessage('conv_123', 'Hello world');
-      expect(result.success).toBe(true);
-    });
-
-    it('should send image message successfully', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: { code: 0, msg: 'Success' },
-      });
-
-      const result = await sendImageMessage('conv_123', 'cloud://image.jpg');
-      expect(result.success).toBe(true);
-    });
-
-    it('should fail with empty conversationId', async () => {
-      const store = useUserStore();
-      store.isLoggedIn = true;
-      store.role = 'farmer';
-      store.status = 'active';
-
-      const result = await sendMessage('', 'Hello');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('会话ID不能为空');
-    });
-
-    it('should fail with empty content', async () => {
-      const store = useUserStore();
-      store.isLoggedIn = true;
-      store.role = 'farmer';
-      store.status = 'active';
-
-      const result = await sendMessage('conv_123', '   ');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('消息内容不能为空');
-    });
-
-    it('should trim whitespace from content', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: { code: 0, msg: 'Success' },
-      });
-
-      await sendMessage('conv_123', '  Hello World  ');
-
-      expect(mockCallFunction).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            payload: expect.objectContaining({
-              content: 'Hello World',
-            }),
-          }),
-        })
-      );
-    });
-
-    it('should handle API error', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: { code: 500, msg: 'Failed to send' },
-      });
-
-      const result = await sendMessage('conv_123', 'Hello');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Failed to send');
-    });
-  });
-
-  describe('getContacts - 获取联系人列表', () => {
-    it('should get contacts successfully', async () => {
-      const store = useUserStore();
-      store.userInfo = { _id: 'test', name: 'Test', role: 'farmer', status: 'active' } as any;
-      store.role = 'farmer';
-      store.status = 'active';
-      store.isLoggedIn = true;
-
-      mockCallFunction.mockResolvedValue({
-        result: {
-          code: 0,
-          data: [
-            { _id: 'user1', name: 'User 1' },
-            { _id: 'user2', name: 'User 2' },
-          ],
-        },
-      });
-
-      const result = await getContacts();
-      expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(2);
-    });
-
-    it('should fail permission check', async () => {
-      const store = useUserStore();
-      store.isLoggedIn = false;
-
-      const result = await getContacts();
-      expect(result.success).toBe(false);
-      expect(mockCallFunction).not.toHaveBeenCalled();
-    });
-  });
+  expect((await getContacts()).data).toEqual([{ conversation_id: 'c', other_user_id: 'other' }]);
+});
+it('does not query contacts while logged out', async () => {
+  mocks.me = null;
+  expect((await getContacts()).success).toBe(false);
+  expect(mocks.contacts).not.toHaveBeenCalled();
+});
+it('reports contact errors without a fake successful result', async () => {
+  mocks.contacts.mockRejectedValue(new Error('contacts failed'));
+  expect((await getContacts()).error).toBe('contacts failed');
 });

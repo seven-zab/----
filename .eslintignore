@@ -7,3 +7,7 @@ copy-cloud-functions.js
 cloudfunctions/
 coverage/
 .baseline/
+.cache/
+contracts/generated/
+.trae-html-share-packages/
+dongbei-7day/

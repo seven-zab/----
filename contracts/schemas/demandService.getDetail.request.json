@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "demand_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "demand_id"
+  ],
+  "additionalProperties": false
+}

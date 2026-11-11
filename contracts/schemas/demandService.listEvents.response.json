@@ -1,0 +1,117 @@
+{
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "from_status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "pending_audit",
+              "rejected",
+              "pending_claim",
+              "claiming",
+              "processing",
+              "pending_review",
+              "completed",
+              "cancelled",
+              "expired",
+              "terminated"
+            ]
+          },
+          "to_status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "pending_audit",
+              "rejected",
+              "pending_claim",
+              "claiming",
+              "processing",
+              "pending_review",
+              "completed",
+              "cancelled",
+              "expired",
+              "terminated"
+            ]
+          },
+          "occurred_at": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attachment_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "maxItems": 8,
+            "minItems": 0,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "event_id",
+          "type",
+          "from_status",
+          "to_status",
+          "occurred_at",
+          "text",
+          "attachment_ids"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 50,
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "next_cursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "has_more": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "items",
+    "next_cursor",
+    "has_more"
+  ],
+  "additionalProperties": false
+}

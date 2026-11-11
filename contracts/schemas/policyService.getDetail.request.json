@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "policy_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "policy_id"
+  ],
+  "additionalProperties": false
+}

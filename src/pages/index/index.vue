@@ -1,482 +1,520 @@
 <template>
-  <view class="container" :class="{ 'large-text-mode': settings.largeTextMode }">
-    <!-- 大字版/标准版切换 -->
-    <FloatingSwitch />
-
-    <!-- 智能轮播图 -->
-    <view class="carousel-area">
+  <PageShell>
+    <view class="home-topbar">
+      <view class="brand"
+        ><view class="brand-mark"><view /><view /></view
+        ><text class="home-title">云治乡智</text></view
+      >
+      <button class="text-button accessibility-toggle" @click="settings.toggleLargeTextMode()">
+        {{ settings.largeTextMode ? '切换标准版' : '切换大字版' }}
+      </button>
+    </view>
+    <view class="home-hero">
+      <text class="hero-title">乡村所需，<text class="hero-title-line">校园所长。</text></text>
+      <text class="hero-description">让每一份需求，遇见愿意行动的人。</text>
+      <text class="hero-place">广东连平乡村 / 深圳技术大学</text>
+      <view class="field-art" aria-hidden="true"
+        ><view class="field-ring ring-one" /><view class="field-ring ring-two" /><view
+          class="field-ring ring-three" /><view class="field-ring ring-four" /><view
+          class="campus-block block-one" /><view class="campus-block block-two" /><view
+          class="campus-block block-three"
+      /></view>
+    </view>
+    <view class="home-actions"
+      ><button class="primary publish-action" @click="go('/pages/demand-create/demand-create')">
+        <text class="action-plus">＋</text>发布需求</button
+      ><button class="policy-action" @click="go('/pages/policy/index')">查看政策</button></view
+    >
+    <button class="assistant-entry" @click="go('/pages/ai-assistant/index')">
+      <view class="assistant-symbol">智</view
+      ><view class="assistant-copy"
+        ><text class="assistant-title">AI业务助手</text
+        ><text class="assistant-description">咨询流程、发布需求、记录进度</text></view
+      ><view class="entry-chevron" />
+    </button>
+    <view v-if="banners.length" class="policy-carousel">
       <swiper
-        class="carousel"
         :indicator-dots="true"
         :autoplay="true"
-        :interval="3000"
-        :circular="true"
-        indicator-active-color="#d32f2f"
+        :interval="5000"
+        :circular="banners.length > 1"
       >
-        <swiper-item
-          v-for="(item, index) in carouselList"
-          :key="index"
-          @click="onCarouselClick(item)"
-        >
-          <view class="carousel-item">
-            <image :src="item.image" mode="aspectFill" class="carousel-bg-image" />
-            <view class="carousel-content">
-              <text class="carousel-title">{{ item.title }}</text>
-              <text class="carousel-desc">{{ item.desc }}</text>
-            </view>
+        <swiper-item v-for="banner in banners" :key="banner.banner_id">
+          <view @click="go('/pages/policy/index?id=' + encodeURIComponent(banner.policy_id))">
+            <image :src="banner.cover_url || ''" mode="aspectFill" class="policy-cover" />
+            <text class="policy-caption">{{ banner.policy_title }}</text>
           </view>
         </swiper-item>
       </swiper>
     </view>
-
-    <!-- Search Bar -->
-    <view class="search-bar">
-      <wd-search v-model="searchText" placeholder="搜索需求" @search="onSearch" @clear="onClear" />
-    </view>
-
-    <!-- Notification Banner -->
-    <view class="notification-banner">
-      <wd-notice-bar
-        type="info"
-        text="最新发布：鹰嘴桃采摘人手短缺需求已通过审核；连平县电商直播技术指导需求正在招募中..."
-        prefix="sound"
-      />
-    </view>
-
-    <!-- Quick Access Buttons -->
-    <view class="quick-access">
-      <view class="grid-item" @click="handleQuickAccess('enterprise')">
-        <view class="icon-box enterprise">
-          <text class="icon-text">企</text>
-        </view>
-        <text class="label">企需通</text>
-      </view>
-      <view class="grid-item" @click="handleQuickAccess('agriculture')">
-        <view class="icon-box agriculture">
-          <text class="icon-text">农</text>
-        </view>
-        <text class="label">农践帮</text>
-      </view>
-      <view class="grid-item" @click="handleQuickAccess('research')">
-        <view class="icon-box research">
-          <text class="icon-text">研</text>
-        </view>
-        <text class="label">科研实践厅</text>
-      </view>
-    </view>
-
-    <!-- Content Area -->
-    <view class="content">
-      <view class="section-title">推荐需求</view>
-      <view v-if="loading" class="loading-state">
-        <wd-loading />
-      </view>
-      <view v-else-if="demandList.length === 0" class="empty-state">
-        <text>暂无相关需求</text>
-      </view>
-      <view v-else>
-        <view
-          v-for="item in demandList"
-          :key="item._id"
-          class="demand-card"
-          @click="goToDetail(item._id)"
+    <text v-if="bannerBusy" class="muted">正在加载政策轮播…</text>
+    <view v-if="bannerError"
+      ><text class="error">{{ bannerError }}</text
+      ><button @click="loadBanners">重试加载政策</button></view
+    >
+    <view class="discovery-heading"
+      ><text class="heading">需求广场</text><text class="discovery-caption">已审核公开</text></view
+    >
+    <scroll-view class="category-scroll" :scroll-x="true" :show-scrollbar="false"
+      ><view class="category-list"
+        ><button
+          v-for="(name, index) in typeNames"
+          :key="index"
+          :id="'demand-filter-' + (types[index] || 'all')"
+          :class="['category-tab', { 'category-active': selected === types[index] }]"
+          @click="selectType(index)"
         >
-          <view class="card-header">
-            <text class="card-title">{{ item.title }}</text>
-            <text class="status-tag" :class="item.status">{{ statusMap[item.status] }}</text>
-          </view>
-          <view class="card-content">{{ item.content }}</view>
-          <view class="card-footer">{{ formatDate(item.created_at) }}</view>
-        </view>
-      </view>
+          {{ name }}
+        </button></view
+      ></scroll-view
+    >
+    <text class="error" v-if="error">{{ error }}</text>
+    <view v-if="busy && !items.length" class="empty-state"
+      ><text class="muted">正在加载需求…</text></view
+    >
+    <view v-if="!busy && !items.length && !error" class="empty-state home-empty"
+      ><view class="empty-field"><view /><view /><view /></view
+      ><text class="empty-title">暂无已审核公开的需求</text
+      ><text class="empty-description"
+        >新需求审核通过后会出现在这里。<text class="empty-next-line"
+          >也可以发布你的第一份需求。</text
+        ></text
+      ><button class="text-button" @click="go('/pages/demand-create/demand-create')">
+        去发布需求
+      </button></view
+    >
+    <view
+      class="card demand-card"
+      v-for="item in items"
+      :key="item.demand_id"
+      @click="go('/pages/demand-detail/demand-detail?id=' + item.demand_id)"
+    >
+      <view class="demand-meta"
+        ><text :class="['demand-type', { 'campus-type': item.business_scene === 'campus' }]">{{
+          typeNames[types.indexOf(item.type)]
+        }}</text
+        ><text class="demand-status">{{ labels[item.status] }}</text></view
+      >
+      <text class="demand-title">{{ item.title }}</text>
+      <text class="demand-excerpt">{{ item.content }}</text>
+      <view class="demand-footer"
+        ><text class="demand-location">{{ item.location_text }}</text
+        ><text class="demand-detail-link">查看详情</text></view
+      >
     </view>
-  </view>
+    <button v-if="cursor" :disabled="busy" @click="load(false)">加载更多</button>
+  </PageShell>
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { useUserStore } from '@/stores/user';
-import { useSettingsStore } from '@/stores/settings';
-import FloatingSwitch from '@/components/FloatingSwitch.vue';
-
-// 声明 wx 对象，避免 TS 报错
-declare const wx: any;
-
-const userStore = useUserStore();
+import PageShell from '../../components/PageShell.vue';
+import { useSettingsStore } from '../../stores/settings';
+import { publicDemands } from '../../services/demandV1';
+import { listBanners } from '../../services/policyV1';
+import type { ContractMap } from '../../../contracts/generated/dto';
+import type { PublicDemandDTO } from '../../../contracts/generated/dto';
+import type { DemandType } from '../../../contracts/enums';
+import { demandStatusLabels as labels, errorMessage } from '../../utils/display';
 const settings = useSettingsStore();
-const searchText = ref('');
-const demandList = ref<any[]>([]);
-const loading = ref(false);
-const currentTab = ref(0);
-const unreadCount = ref(0);
-
-const carouselList = ref([
-  {
-    title: '惠农补贴政策',
-    desc: '2025年最新种养殖补贴标准发布',
-    image: '/static/images/carousel/subsidy.jpg',
-    url: '/pages/policy/index',
-  },
-  {
-    title: '产业扶持计划',
-    desc: '支持农产品加工与冷链物流建设',
-    image: '/static/images/carousel/industry.jpg',
-    url: '/pages/policy/index',
-  },
-  {
-    title: '科技兴农专项',
-    desc: '农业科技项目申报指南',
-    image: '/static/images/carousel/tech.jpg',
-    url: '/pages/policy/index',
-  },
-  {
-    title: '返乡创业支持',
-    desc: '人才引进与创业担保贷款政策',
-    image: '/static/images/carousel/startup.jpg',
-    url: '/pages/policy/index',
-  },
-]);
-
-const statusMap: Record<string, string> = {
-  pending_audit: '审核中',
-  open: '待认领',
-  rejected: '已驳回',
-  matched: '已结对',
-  completed: '已完成',
-};
-
-onMounted(() => {
-  // Settings are initialized in App.vue or store constructor
-});
-
-onShow(() => {
-  loadDemands();
-});
-
-const onCarouselClick = (item: any) => {
-  if (item.url) {
-    uni.navigateTo({ url: item.url });
-  }
-};
-
-const loadDemands = async () => {
-  loading.value = true;
+const banners = ref<ContractMap['policyService.listBanners']['response']>([]);
+const bannerBusy = ref(false),
+  bannerError = ref('');
+async function loadBanners() {
+  if (bannerBusy.value) return;
+  bannerBusy.value = true;
   try {
-    const { result } = await wx.cloud.callFunction({
-      name: 'demandService',
-      data: {
-        action: 'list',
-        data: {
-          status: 'open', // Default to showing open demands for general view
-          page: 1,
-          pageSize: 20,
-          keyword: searchText.value, // Add keyword support in cloud function if needed
-        },
-      },
-    });
-    if (result.code === 0) {
-      demandList.value = result.data.list;
-    }
+    banners.value = await listBanners();
+    bannerError.value = '';
   } catch (e) {
-    console.error(e);
+    banners.value = [];
+    bannerError.value = errorMessage(e);
   } finally {
-    loading.value = false;
+    bannerBusy.value = false;
   }
-};
-
-const onSearch = () => {
-  loadDemands();
-};
-
-const onClear = () => {
-  searchText.value = '';
-  loadDemands();
-};
-
-const handleQuickAccess = (type: string) => {
-  if (!userStore.isLoggedIn) {
-    uni.navigateTo({ url: '/pages/login/login' });
-    return;
+}
+const items = ref<PublicDemandDTO[]>([]);
+const cursor = ref<string | null>(null);
+const busy = ref(false);
+const error = ref('');
+const selected = ref<DemandType | undefined>();
+let requestSequence = 0;
+const typeNames = ['全部', '企需通', '农践帮', '科研实践厅', '校园任务'];
+const types: Array<DemandType | undefined> = [
+  undefined,
+  'enterprise',
+  'agriculture',
+  'research',
+  'campus',
+];
+const go = (url: string) => uni.navigateTo({ url });
+async function load(reset = true) {
+  if (busy.value && !reset) return;
+  const sequence = ++requestSequence;
+  const type = selected.value;
+  if (reset) {
+    items.value = [];
+    cursor.value = null;
   }
-  // All types currently go to create demand page, but we could pass type as param
-  uni.navigateTo({ url: `/pages/demand-create/demand-create?type=${type}` });
-};
-
-const goToDetail = (id: string) => {
-  uni.navigateTo({ url: `/pages/demand-detail/demand-detail?id=${id}` });
-};
-
-const handleTabChange = (data: { value: number }) => {
-  if (data.value === 1) {
-    if (!userStore.isLoggedIn) {
-      uni.navigateTo({ url: '/pages/login/login' });
-      return;
-    }
-    uni.navigateTo({ url: '/pages/chat/chat' });
-  } else if (data.value === 2) {
-    if (!userStore.isLoggedIn) {
-      uni.navigateTo({ url: '/pages/login/login' });
-      return;
-    }
-    uni.navigateTo({ url: '/pages/user/user' });
+  busy.value = true;
+  error.value = '';
+  try {
+    const result = await publicDemands({
+      ...(type ? { type } : {}),
+      ...(!reset && cursor.value ? { cursor: cursor.value } : {}),
+    });
+    if (sequence !== requestSequence) return;
+    items.value = reset ? result.items : [...items.value, ...result.items];
+    cursor.value = result.next_cursor;
+  } catch (e) {
+    if (sequence === requestSequence) error.value = errorMessage(e);
+  } finally {
+    if (sequence === requestSequence) busy.value = false;
   }
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString();
-};
+}
+function selectType(index: number) {
+  selected.value = types[index];
+  void load();
+}
+onShow(() => {
+  void load();
+  void loadBanners();
+});
 </script>
-
-<style lang="scss">
-.container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding-bottom: 100rpx;
-
-  &.large-text-mode {
-    .carousel-title {
-      font-size: 48rpx !important;
-    }
-    .carousel-desc {
-      font-size: 32rpx !important;
-    }
-    .label {
-      font-size: 36rpx !important;
-    }
-    .card-title {
-      font-size: 36rpx !important;
-    }
-    .card-content {
-      font-size: 32rpx !important;
-    }
-    .status-tag {
-      font-size: 28rpx !important;
-    }
-    .section-title {
-      font-size: 40rpx !important;
-    }
-  }
-}
-/* Removed .font-switch style */
-
-.carousel-area {
-  margin-bottom: 20rpx;
-
-  .carousel {
-    height: 350rpx;
-  }
-
-  .carousel-item {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-
-    .carousel-bg-image {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-
-    .carousel-content {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 40rpx;
-      z-index: 2;
-      background: rgba(0, 0, 0, 0.4); // Dark overlay for text readability
-    }
-
-    .carousel-title {
-      font-size: 40rpx;
-      font-weight: bold;
-      color: #fff;
-      margin-bottom: 16rpx;
-      text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.5);
-    }
-
-    .carousel-desc {
-      font-size: 26rpx;
-      color: rgba(255, 255, 255, 0.95);
-      text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.5);
-    }
-  }
-}
-
-.search-bar {
-  background-color: #fff;
-  padding: 20rpx;
-}
-
-.notification-banner {
-  margin-bottom: 20rpx;
-}
-
-.quick-access {
-  display: flex;
-  justify-content: space-around;
-  padding: 40rpx 20rpx;
-  background-color: #fff;
-  margin-bottom: 20rpx;
-
-  .grid-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16rpx;
-
-    .icon-box {
-      width: 100rpx;
-      height: 100rpx;
-      border-radius: 20rpx;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
-
-      .icon-text {
-        font-size: 40rpx;
-        font-weight: bold;
-        color: #fff;
-      }
-
-      &.enterprise {
-        background: linear-gradient(135deg, #1890ff, #36cfc9);
-      }
-      &.agriculture {
-        background: linear-gradient(135deg, #52c41a, #95de64);
-      }
-      &.research {
-        background: linear-gradient(135deg, #722ed1, #b37feb);
-      }
-    }
-
-    .label {
-      font-size: 28rpx;
-      color: #333;
-      font-weight: 500;
-    }
-  }
-}
-
-.content {
-  padding: 20rpx;
-
-  .section-title {
-    font-size: 32rpx;
-    font-weight: bold;
-    margin-bottom: 20rpx;
-    padding-left: 16rpx;
-    border-left: 8rpx solid #007aff;
-    color: #333;
-  }
-
-  .loading-state,
-  .empty-state {
-    padding: 60rpx;
-    display: flex;
-    justify-content: center;
-    color: #999;
-    font-size: 28rpx;
-  }
-
-  .demand-card {
-    background-color: #fff;
-    padding: 24rpx;
-    border-radius: 16rpx;
-    margin-bottom: 24rpx;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-    transition: all 0.2s;
-
-    &:active {
-      transform: scale(0.98);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16rpx;
-
-      .card-title {
-        font-size: 30rpx;
-        font-weight: bold;
-        color: #333;
-        flex: 1;
-        margin-right: 20rpx;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .status-tag {
-        font-size: 22rpx;
-        padding: 4rpx 12rpx;
-        border-radius: 6rpx;
-        white-space: nowrap;
-
-        &.pending_audit {
-          background-color: #fff7e6;
-          color: #fa8c16;
-        }
-        &.open {
-          background-color: #e6f7ff;
-          color: #1890ff;
-        }
-        &.rejected {
-          background-color: #fff1f0;
-          color: #f5222d;
-        }
-        &.matched {
-          background-color: #f6ffed;
-          color: #52c41a;
-        }
-      }
-    }
-
-    .card-content {
-      font-size: 26rpx;
-      color: #666;
-      margin-bottom: 20rpx;
-      line-height: 1.5;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      overflow: hidden;
-    }
-
-    .card-footer {
-      font-size: 22rpx;
-      color: #999;
-      text-align: right;
-      border-top: 1px solid #f0f0f0;
-      padding-top: 16rpx;
-    }
-  }
-}
-
-.welcome-logo-placeholder {
-  width: 200rpx;
-  height: 200rpx;
-  margin-bottom: 40rpx;
-  border-radius: 50%;
-  background-color: #e6f7ff;
-  color: #1890ff;
+<style scoped>
+.home-topbar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 40rpx;
-  border: 4rpx solid #1890ff;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin: 2rpx 0 30rpx;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+.home-title {
+  font-size: 1.05em;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+.brand-mark {
+  width: 44rpx;
+  height: 44rpx;
+  position: relative;
+  flex: none;
+}
+.brand-mark view {
+  position: absolute;
+  background: #216653;
+  width: 28rpx;
+  height: 32rpx;
+  border-radius: 2rpx 20rpx 2rpx 20rpx;
+  top: 4rpx;
+}
+.brand-mark view:last-child {
+  left: 20rpx;
+  top: 12rpx;
+  width: 20rpx;
+  height: 25rpx;
+  background: #78a08c;
+  transform: rotate(85deg);
+}
+.accessibility-toggle {
+  font-size: 0.77em;
+  flex: none;
+}
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30rpx 30rpx 6rpx 30rpx;
+  background: #216653;
+  color: #fff;
+  padding: 38rpx 32rpx;
+}
+.hero-title {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-size: 1.7em;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 3rpx;
+}
+.hero-title-line {
+  display: block;
+}
+.hero-description {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-size: 0.82em;
+  margin-top: 20rpx;
+  color: #e0eee5;
+}
+.hero-place {
+  display: block;
+  position: relative;
+  z-index: 1;
+  margin-top: 30rpx;
+  font-size: 0.68em;
+  color: #cfe2d7;
+}
+.field-art {
+  position: absolute;
+  right: -115rpx;
+  bottom: -105rpx;
+  width: 390rpx;
+  height: 410rpx;
+  transform: rotate(-14deg);
+}
+.field-ring {
+  position: absolute;
+  border: 2rpx solid #90b6a1;
+  border-radius: 48%;
+  width: 390rpx;
+  height: 260rpx;
+  opacity: 0.55;
+}
+.ring-one {
+  top: 100rpx;
+}
+.ring-two {
+  top: 145rpx;
+}
+.ring-three {
+  top: 190rpx;
+}
+.ring-four {
+  top: 235rpx;
+}
+.campus-block {
+  position: absolute;
+  bottom: 255rpx;
+  background: #86ae96;
+  opacity: 0.5;
+  width: 33rpx;
+  border-radius: 4rpx 4rpx 0 0;
+}
+.block-one {
+  height: 66rpx;
+  left: 115rpx;
+}
+.block-two {
+  height: 100rpx;
+  left: 159rpx;
+}
+.block-three {
+  height: 80rpx;
+  left: 204rpx;
+}
+.home-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 18rpx;
+}
+.home-actions button {
+  flex: 1;
+  margin: 0;
+}
+.action-plus {
+  font-size: 1.2em;
+  margin-right: 12rpx;
+  font-weight: 400;
+}
+.assistant-entry {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 22rpx;
+  width: 100%;
+  padding: 24rpx 26rpx;
+  border: 0;
+  background: #e8f0f6;
+  margin: 20rpx 0 36rpx;
+  border-radius: 20rpx;
+}
+.assistant-symbol {
+  flex: none;
+  font-size: 1.15em;
+  color: #416c91;
+  border: 1rpx solid #9ab2c7;
+  padding: 2rpx 12rpx;
+  border-radius: 12rpx;
+}
+.assistant-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.assistant-title {
+  color: #335a7b;
+  font-size: 0.98em;
+  font-weight: 600;
+}
+.assistant-description {
+  color: #5b7890;
+  font-size: 0.76em;
+  margin-top: 2rpx;
+}
+.entry-chevron {
+  width: 12rpx;
+  height: 12rpx;
+  border-right: 3rpx solid #7390a8;
+  border-top: 3rpx solid #7390a8;
+  transform: rotate(45deg);
+  flex: none;
+}
+.discovery-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-top: 34rpx;
+}
+.discovery-heading .heading {
+  font-size: 1.2em;
+  margin: 0;
+}
+.discovery-caption {
+  font-size: 0.74em;
+  color: #7d8f84;
+}
+.category-scroll {
+  width: 100%;
+  margin: 24rpx 0 4rpx;
+  white-space: nowrap;
+}
+.category-list {
+  display: inline-flex;
+  gap: 12rpx;
+  padding-bottom: 12rpx;
+}
+.category-tab {
+  margin: 0;
+  padding: 12rpx 24rpx;
+  background: transparent;
+  border: 1rpx solid transparent;
+  border-radius: 12rpx;
+  font-size: 0.84em;
+  color: #697c75;
+  flex: none;
+}
+.category-active {
+  color: #216653;
+  border-color: #c7dace;
+  background: #e7efe9;
+  font-weight: 600;
+}
+.demand-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+.demand-type {
+  color: #216653;
+  background: #eaf2ed;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  font-size: 0.75em;
+}
+.campus-type {
+  color: #416c91;
+  background: #edf3f8;
+}
+.demand-status {
+  color: #697c75;
+  font-size: 0.76em;
+}
+.demand-title {
+  display: block;
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 22rpx 0 12rpx;
+  line-height: 1.5;
+}
+.demand-excerpt {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.87em;
+  color: #697c75;
+}
+.demand-footer {
+  border-top: 1rpx solid #edf1ee;
+  margin-top: 26rpx;
+  padding-top: 20rpx;
+  display: flex;
+  gap: 16rpx;
+  justify-content: space-between;
+}
+.demand-location {
+  font-size: 0.78em;
+  color: #697c75;
+  flex: 1;
+  min-width: 0;
+}
+.demand-detail-link {
+  font-size: 0.78em;
+  color: #216653;
+  flex: none;
+}
+.home-empty {
+  background: #fff;
+  border-radius: 24rpx;
+  margin-top: 20rpx;
+}
+.empty-field {
+  position: relative;
+  width: 90rpx;
+  height: 65rpx;
+  margin: 0 auto 32rpx;
+  border: 2rpx solid #c9dbce;
+  border-radius: 8rpx;
+  overflow: hidden;
+  transform: rotate(-5deg);
+}
+.empty-field view {
+  position: absolute;
+  border-top: 2rpx solid #c9dbce;
+  width: 120rpx;
+  top: 22rpx;
+  transform: rotate(-18deg);
+}
+.empty-field view:nth-child(2) {
+  top: 42rpx;
+}
+.empty-field view:last-child {
+  top: 62rpx;
+}
+.empty-next-line {
+  display: block;
+}
+.home-empty .text-button {
+  margin: 24rpx auto 0;
+}
+.policy-carousel swiper {
+  height: 380rpx;
+}
+.policy-cover {
+  width: 100%;
+  height: 230rpx;
+  border-radius: 16rpx;
+}
+.policy-caption {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.5;
+  padding: 8rpx 0;
+  overflow-wrap: anywhere;
+}
+.large-text-mode .policy-carousel swiper {
+  height: 470rpx;
 }
 </style>

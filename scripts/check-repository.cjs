@@ -2,9 +2,28 @@ const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 
 // Inspect tracked paths only. Ignored local files must remain available locally.
-const files = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' })
+const tracked = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' })
   .split('\0')
   .filter(Boolean);
+const developmentRoots = [
+  'server/',
+  'contracts/',
+  'database/',
+  'tests/',
+  'scripts/',
+  'docs/',
+  'src/',
+  'cloudfunctions/',
+];
+const newFiles = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '-z'], {
+  encoding: 'utf8',
+})
+  .split('\0')
+  .filter(
+    (file) =>
+      developmentRoots.some((root) => file.startsWith(root)) || file === 'tsconfig.server.json',
+  );
+const files = [...new Set([...tracked, ...newFiles])];
 const forbidden = files.filter((file) => {
   const segments = file.split('/');
   const name = segments[segments.length - 1];
@@ -52,6 +71,6 @@ for (const file of forbidden) {
 if (forbidden.length || credentialCount) {
   process.exitCode = 1;
 } else {
-  console.log(`Repository hygiene passed: ${files.length} tracked files checked.`);
+  console.log(`Repository hygiene passed: ${files.length} tracked/development files checked.`);
   console.log('Credential detection is heuristic, not a complete security audit.');
 }

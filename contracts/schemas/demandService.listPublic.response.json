@@ -1,0 +1,491 @@
+{
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "demand_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "title": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 80
+          },
+          "content": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 5000
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "enterprise",
+              "agriculture",
+              "research",
+              "campus"
+            ]
+          },
+          "sub_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "business_scene": {
+            "type": "string",
+            "enum": [
+              "village",
+              "campus"
+            ]
+          },
+          "region_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "region_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "campus_organization_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "campus_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location_text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "service_time": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "negotiable"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "period"
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "kind",
+                  "description"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "scheduled"
+                  },
+                  "start_at": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "end_at": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "kind",
+                  "start_at"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "negotiable"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "range"
+                      },
+                      "min_fen": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "max_fen": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "currency": {
+                        "const": "CNY"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "min_fen",
+                      "max_fen",
+                      "currency"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "at_most"
+                      },
+                      "max_fen": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "currency": {
+                        "const": "CNY"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "max_fen",
+                      "currency"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "at_least"
+                      },
+                      "min_fen": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "currency": {
+                        "const": "CNY"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "min_fen",
+                      "currency"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "public_extra": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "coop_period": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "company_scale": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "urgency": {
+                    "type": "string",
+                    "enum": [
+                      "normal",
+                      "urgent",
+                      "critical"
+                    ]
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "live_location_kind": {
+                    "type": "string",
+                    "enum": [
+                      "campus_live_base",
+                      "local_orchard"
+                    ]
+                  },
+                  "product_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "product_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "yield_value": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "yield_unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "logistics": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "help_period": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "crop_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "operation_area": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "unit": {
+                        "type": "string",
+                        "enum": [
+                          "mu",
+                          "hectare",
+                          "square_meter"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "value",
+                      "unit"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "equipment_provider": {
+                    "type": "string",
+                    "enum": [
+                      "publisher",
+                      "service_party",
+                      "negotiable"
+                    ]
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "project_stage": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "target_university": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "funding_source": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "self_funded",
+                      "subsidy_application"
+                    ]
+                  },
+                  "lab_conditions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "maxItems": 20,
+                    "minItems": 0,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "pending_audit",
+              "rejected",
+              "pending_claim",
+              "claiming",
+              "processing",
+              "pending_review",
+              "completed",
+              "cancelled",
+              "expired",
+              "terminated"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "image_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "maxItems": 5,
+            "minItems": 0,
+            "uniqueItems": true
+          },
+          "approved_at": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "expires_at": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "demand_id",
+          "title",
+          "content",
+          "type",
+          "sub_type",
+          "business_scene",
+          "region_id",
+          "region_name",
+          "campus_organization_id",
+          "campus_name",
+          "location_text",
+          "service_time",
+          "budget",
+          "public_extra",
+          "status",
+          "version",
+          "image_ids",
+          "approved_at",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 50,
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "next_cursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "has_more": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "items",
+    "next_cursor",
+    "has_more"
+  ],
+  "additionalProperties": false
+}

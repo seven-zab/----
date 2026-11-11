@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "handover_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "rejected"
+      ]
+    }
+  },
+  "required": [
+    "handover_id",
+    "status"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,38 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "file_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "url": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      },
+      "expires_at": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "mime": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      }
+    },
+    "required": [
+      "file_id",
+      "url",
+      "expires_at",
+      "mime"
+    ],
+    "additionalProperties": false
+  },
+  "maxItems": 20,
+  "minItems": 0,
+  "uniqueItems": true
+}

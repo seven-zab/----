@@ -1,0 +1,157 @@
+{
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "title": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 200
+          },
+          "body_text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "assistant_usage": {
+            "type": "string",
+            "enum": [
+              "business_answer",
+              "tool_reference",
+              "management_answer"
+            ]
+          },
+          "scope": {
+            "type": "object",
+            "properties": {
+              "business_scene": {
+                "type": "string",
+                "enum": [
+                  "village",
+                  "campus"
+                ]
+              },
+              "region_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "campus_organization_id": {
+                "const": "sztu"
+              }
+            },
+            "required": [
+              "business_scene"
+            ],
+            "additionalProperties": false
+          },
+          "source_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "unpublished"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "official_text",
+              "generated_api"
+            ]
+          },
+          "source_hash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 64,
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "release_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "content_hash": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64
+          },
+          "admin_visibility": {
+            "const": "super_admin"
+          }
+        },
+        "required": [
+          "document_id",
+          "title",
+          "body_text",
+          "assistant_usage",
+          "scope",
+          "status",
+          "version",
+          "source_type",
+          "source_hash",
+          "release_id",
+          "content_hash",
+          "admin_visibility"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 50,
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "next_cursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "has_more": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "items",
+    "next_cursor",
+    "has_more"
+  ],
+  "additionalProperties": false
+}

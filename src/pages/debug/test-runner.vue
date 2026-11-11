@@ -59,10 +59,12 @@ import { ref, onMounted } from 'vue';
 const sdkVersion = ref('');
 const loading = ref({
   login: false,
+  assets: false,
   db: false,
 });
 const result = ref({
   login: { msg: '', error: false },
+  assets: { msg: '', error: false },
   db: { msg: '', error: false },
 });
 const logs = ref<string[]>([]);

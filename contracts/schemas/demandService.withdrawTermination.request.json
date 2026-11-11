@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "properties": {
+    "demand_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "expected_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "termination_request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "request_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "demand_id",
+    "expected_version",
+    "termination_request_id",
+    "request_version"
+  ],
+  "additionalProperties": false
+}

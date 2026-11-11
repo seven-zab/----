@@ -1,0 +1,168 @@
+{
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "material_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 5,
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "contact_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "contact_phone": {
+          "type": "string",
+          "pattern": "^1[3-9][0-9]{9}$"
+        },
+        "requested_role": {
+          "const": "farmer"
+        },
+        "profile_kind": {
+          "type": "string",
+          "enum": [
+            "farmer",
+            "merchant"
+          ]
+        },
+        "scope_region_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "business_description": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 1000
+        },
+        "proof_kind": {
+          "type": "string",
+          "enum": [
+            "land_proof",
+            "business_license",
+            "operation_photo"
+          ]
+        }
+      },
+      "required": [
+        "material_ids",
+        "contact_name",
+        "contact_phone",
+        "requested_role",
+        "profile_kind",
+        "scope_region_id",
+        "business_description",
+        "proof_kind"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "material_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 5,
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "contact_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "contact_phone": {
+          "type": "string",
+          "pattern": "^1[3-9][0-9]{9}$"
+        },
+        "requested_role": {
+          "const": "teacher_student"
+        },
+        "profile_kind": {
+          "type": "string",
+          "enum": [
+            "teacher",
+            "student"
+          ]
+        },
+        "organization_id": {
+          "const": "sztu"
+        },
+        "school_identity_number": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        }
+      },
+      "required": [
+        "material_ids",
+        "contact_name",
+        "contact_phone",
+        "requested_role",
+        "profile_kind",
+        "organization_id",
+        "school_identity_number"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "material_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 5,
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "contact_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "contact_phone": {
+          "type": "string",
+          "pattern": "^1[3-9][0-9]{9}$"
+        },
+        "requested_role": {
+          "const": "local_admin"
+        },
+        "scope_region_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "organization_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "material_ids",
+        "contact_name",
+        "contact_phone",
+        "requested_role",
+        "scope_region_id",
+        "organization_id"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

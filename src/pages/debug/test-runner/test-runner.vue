@@ -4,7 +4,7 @@
     <view class="description"> 环境 ID: test-yzxz-0g1gylp46818d68 </view>
 
     <view class="btn-area">
-      <button type="primary" @click="runTest">执行云函数测试 (Login)</button>
+      <button class="primary" @click="runTest">执行云函数测试 (Login)</button>
     </view>
 
     <view class="result-area" v-if="testResult">
@@ -16,13 +16,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { legacyCall } from '../../../services/legacyCloudClient';
 
 const testResult = ref('');
 
 const runTest = async () => {
   testResult.value = 'Running...';
   try {
-    const { result } = await wx.cloud.callFunction({
+    const { result } = await legacyCall<unknown>({
       name: 'login',
     });
 

@@ -1,0 +1,22 @@
+{
+  "api_version": "v1",
+  "source_hash": "a2bf70168f55eec4e21bdb89b24b21e0874df016543c4d92829b86fd474ebb2e",
+  "targets": {
+    "userService": "yzxz_v2_userService",
+    "demandService": "yzxz_v2_demandService",
+    "teamService": "yzxz_v2_teamService",
+    "fileService": "yzxz_v2_fileService",
+    "policyService": "yzxz_v2_policyService",
+    "notificationService": "yzxz_v2_notificationService",
+    "chatService": "yzxz_v2_chatService",
+    "contactService": "yzxz_v2_contactService",
+    "statsService": "yzxz_v2_statsService",
+    "knowledgeService": "yzxz_v2_knowledgeService",
+    "aiService": "yzxz_v2_aiService",
+    "maintenanceService": "yzxz_v2_maintenanceService"
+  },
+  "workers": {
+    "businessJobs": "yzxz_v2_businessJobs",
+    "aiJobs": "yzxz_v2_aiJobs"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "properties": {
+    "demand_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "expected_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "claim_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "accept",
+        "reject"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "demand_id",
+    "expected_version",
+    "claim_id",
+    "decision"
+  ],
+  "additionalProperties": false
+}

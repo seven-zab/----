@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "updated": {
+      "const": true
+    }
+  },
+  "required": [
+    "updated"
+  ],
+  "additionalProperties": false
+}

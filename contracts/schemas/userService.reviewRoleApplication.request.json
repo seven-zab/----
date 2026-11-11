@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "properties": {
+    "application_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "expected_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "approve",
+        "reject"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "application_id",
+    "expected_version",
+    "decision"
+  ],
+  "additionalProperties": false
+}

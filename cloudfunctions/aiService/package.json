@@ -1,0 +1,25 @@
+{
+  "name": "aiService",
+  "version": "2.0.0",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": ">=16.13"
+  },
+  "dependencies": {
+    "wx-server-sdk": "4.0.2"
+  },
+  "overrides": {
+    "mkdirp@0.5.1": "0.5.6",
+    "form-data@^2.3.2": "2.5.6",
+    "proxy-addr@^2.0.0": "2.0.8",
+    "exceljs@4.4.0": {
+      "uuid": "11.1.1"
+    },
+    "yaml@>=2.0.0 <2.8.3": "2.8.3",
+    "axios": "0.34.0",
+    "jpeg-js": "0.4.4",
+    "qs": "6.17.1",
+    "micromatch": "4.0.8"
+  }
+}

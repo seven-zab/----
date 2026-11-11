@@ -1,0 +1,118 @@
+{
+  "type": "object",
+  "properties": {
+    "intent_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "proposal_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "submit_my_demand",
+        "claim_my_demand",
+        "add_my_progress",
+        "submit_my_completion"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "collecting",
+        "ready",
+        "executed",
+        "cancelled",
+        "expired",
+        "failed"
+      ]
+    },
+    "demand_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "demand_status": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "draft",
+            "pending_audit",
+            "rejected",
+            "pending_claim",
+            "claiming",
+            "processing",
+            "pending_review",
+            "completed",
+            "cancelled",
+            "expired",
+            "terminated"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "detail_path": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "error_code": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "intent_id",
+    "version",
+    "proposal_id",
+    "action",
+    "status",
+    "demand_id",
+    "demand_status",
+    "detail_path",
+    "error_code"
+  ],
+  "additionalProperties": false
+}

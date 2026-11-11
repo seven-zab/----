@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "properties": {
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "demand",
+        "file",
+        "application",
+        "export",
+        "conversation",
+        "ai_session"
+      ]
+    },
+    "resource_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 500
+    },
+    "review_at": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "resource_type",
+    "resource_id",
+    "reason",
+    "review_at"
+  ],
+  "additionalProperties": false
+}

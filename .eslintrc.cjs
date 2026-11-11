@@ -16,6 +16,15 @@ module.exports = {
     'vue/multi-word-component-names': 'off',
   },
   overrides: [
+    { files: ['tests/e2e/**/*.cjs'], env: { node: true, commonjs: true } },
+    {
+      files: ['server/**/*.ts', 'tests/helpers/**/*.ts', 'tests/unit/v2-*.ts'],
+      env: { node: true },
+    },
+    {
+      files: ['src/components/SchemaForm.vue'],
+      rules: { 'vue/no-mutating-props': ['error', { shallowOnly: true }] },
+    },
     {
       files: ['cloudfunctions/**/*.js'],
       env: {

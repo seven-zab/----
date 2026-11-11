@@ -29,11 +29,17 @@ jobs:
       - name: Lint Code
         run: npm run lint:check
 
-      # Existing TypeScript errors are recorded as baseline debt, not hidden.
-      # This check currently covers .ts files; Vue SFC checks need vue-tsc later.
-      - name: Type Check (known baseline debt)
+      - name: Contract Drift Check
+        run: npm run contracts:check
+
+      - name: Independent Function Dependency Locks
+        run: npm run dependencies:check
+
+      - name: Acceptance Template Completeness
+        run: npm run acceptance:check
+
+      - name: Type Check (Vue and server)
         id: typecheck
-        continue-on-error: true
         run: npm run typecheck
 
       # 2. 单元测试 (Vitest)

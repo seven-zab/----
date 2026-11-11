@@ -26,3 +26,23 @@ playwright-report/
 
 # Release/source archives are reproducible outputs, not source files
 /*.zip
+cloudfunctions/*/runtime.cjs
+
+# Local screenshots, handoff materials, and unrelated projects
+/.tmp_f4.png
+/.tmp_f5.png
+/.screenshots/
+/outputs/20261111-project-handoff/
+/.trae-html-share-packages/
+/dongbei-7day/
+/river-estuaries-map/
+
+# Personal documents and photos at the repository root
+/*_简历.pdf
+/CET6_*_压缩.pdf
+/百分制修读课程-中文_压缩.pdf
+/科研竞赛奖学金_压缩.jpg
+/蓝底证件照_*.jpg
+/证件照_蓝底_露眉露额.jpg
+/国考海关一周提分计划.md
+/深圳_计算机类_2027应届_省考岗位筛选.xlsx

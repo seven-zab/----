@@ -1,0 +1,47 @@
+{
+  "*": {
+    "invoke": false
+  },
+  "yzxz_v2_businessJobs": {
+    "invoke": false
+  },
+  "yzxz_v2_aiJobs": {
+    "invoke": false
+  },
+  "yzxz_v2_userService": {
+    "invoke": true
+  },
+  "yzxz_v2_demandService": {
+    "invoke": true
+  },
+  "yzxz_v2_teamService": {
+    "invoke": "auth != null"
+  },
+  "yzxz_v2_fileService": {
+    "invoke": "auth != null"
+  },
+  "yzxz_v2_policyService": {
+    "invoke": true
+  },
+  "yzxz_v2_notificationService": {
+    "invoke": "auth != null"
+  },
+  "yzxz_v2_chatService": {
+    "invoke": "auth != null"
+  },
+  "yzxz_v2_contactService": {
+    "invoke": "auth != null"
+  },
+  "yzxz_v2_statsService": {
+    "invoke": "auth != null"
+  },
+  "yzxz_v2_knowledgeService": {
+    "invoke": "auth != null"
+  },
+  "yzxz_v2_aiService": {
+    "invoke": true
+  },
+  "yzxz_v2_maintenanceService": {
+    "invoke": "auth != null"
+  }
+}

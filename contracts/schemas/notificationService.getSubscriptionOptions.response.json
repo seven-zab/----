@@ -1,0 +1,26 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "template_key": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "template_id": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 200
+      }
+    },
+    "required": [
+      "template_key",
+      "template_id"
+    ],
+    "additionalProperties": false
+  },
+  "maxItems": 3,
+  "minItems": 0,
+  "uniqueItems": true
+}

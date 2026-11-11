@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "usage": {
+      "type": "string",
+      "enum": [
+        "business_answer",
+        "tool_reference",
+        "management_answer"
+      ]
+    },
+    "cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "page_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

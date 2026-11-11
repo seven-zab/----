@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "properties": {
+    "file_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "application",
+        "demand",
+        "upload",
+        "message",
+        "export",
+        "avatar"
+      ]
+    },
+    "resource_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    }
+  },
+  "required": [
+    "file_ids",
+    "resource_type",
+    "resource_id",
+    "purpose"
+  ],
+  "additionalProperties": false
+}
