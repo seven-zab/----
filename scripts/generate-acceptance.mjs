@@ -44,7 +44,9 @@ const content =
   '\r\n';
 const path = 'docs/testing/acceptance-template.csv';
 if (process.argv.includes('--check')) {
-  if ((await readFile(path, 'utf8')) !== content)
+  const template = await readFile(path, 'utf8');
+  // Git can check out the same CSV with either LF or CRLF line endings.
+  if (template.replaceAll('\r\n', '\n') !== content.replaceAll('\r\n', '\n'))
     throw new Error('Acceptance template differs from frozen specification');
 } else {
   await mkdir('docs/testing', { recursive: true });
